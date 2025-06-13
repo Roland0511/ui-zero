@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+.pytest_cache/
+.claude
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+tmp/
+# Virtual environments
+.venv
+.env
+.DS_Store
+
+.vscode/
+
+CLAUDE.md

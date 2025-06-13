@@ -1,0 +1,146 @@
+# Chinese (Simplified) translations for UI-Zero.
+# Copyright (C) 2025
+# This file is distributed under the same license as the UI-Zero package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: UI-Zero 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-13 10:00+0000\n"
+"PO-Revision-Date: 2025-06-13 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# CLI related
+msgid "starting_test_execution"
+msgstr "开始执行测试用例..., 共有任务数:"
+
+msgid "using_specified_device"
+msgstr "使用指定设备:"
+
+msgid "using_default_device"
+msgstr "使用默认设备"
+
+msgid "debug_history_enabled"
+msgstr "[DEBUG] 历史记录功能: 启用"
+
+msgid "debug_history_disabled"
+msgstr "[DEBUG] 历史记录功能: 禁用"
+
+msgid "debug_mode_enabled"
+msgstr "[DEBUG] 调试模式: 启用"
+
+msgid "debug_mode_disabled"
+msgstr "[DEBUG] 调试模式: 禁用"
+
+msgid "starting_task"
+msgstr "==> 开始执行任务【{}】: {} <=="
+
+msgid "task_completed"
+msgstr "任务【{}】执行完毕。\n"
+
+msgid "task_not_completed"
+msgstr "任务【{}】未完成，继续下一个任务"
+
+msgid "user_interrupted"
+msgstr "\n用户中断执行"
+
+msgid "all_tasks_completed"
+msgstr "所有任务执行完毕。"
+
+msgid "execution_error"
+msgstr "Error: {}"
+
+msgid "step_execution_error"
+msgstr "执行测试步骤时出错: {}"
+
+msgid "step_execution_log"
+msgstr "执行测试步骤: {}"
+
+# CLI description
+msgid "cli_description"
+msgstr "UI-Zero: AI驱动的UI自动化测试工具"
+
+msgid "usage_examples_title"
+msgstr "使用示例:"
+
+# Device related
+msgid "available_devices"
+msgstr "可用的Android设备:"
+
+msgid "no_devices_found"
+msgstr "未找到可用的Android设备"
+
+msgid "device_list_error"
+msgstr "获取设备列表失败: {}"
+
+# File loading related
+msgid "testcase_file_not_found"
+msgstr "错误: 测试用例文件 '{}' 不存在"
+
+msgid "testcase_file_json_error"
+msgstr "错误: 测试用例文件 '{}' JSON格式错误: {}"
+
+msgid "testcase_file_load_error"
+msgstr "错误: 加载测试用例文件时出错: {}"
+
+msgid "testcase_format_error"
+msgstr "测试用例文件格式错误，应为JSON数组"
+
+msgid "using_cli_commands"
+msgstr "使用命令行指定的 {} 个测试命令"
+
+msgid "loaded_from_file"
+msgstr "从文件 '{}' 加载了 {} 个测试用例"
+
+msgid "loaded_from_default"
+msgstr "从默认文件 '{}' 加载了 {} 个测试用例"
+
+msgid "no_testcase_found"
+msgstr "错误: 未找到测试用例文件 '{}'"
+
+msgid "testcase_options"
+msgstr "请使用以下方式之一提供测试用例:\n  1. 在当前目录创建 test_case.json 文件\n  2. 使用 --testcase 参数指定测试用例文件\n  3. 使用 --command 参数直接指定测试命令"
+
+msgid "use_help"
+msgstr "使用 --help 查看详细帮助信息"
+
+# ADB related
+msgid "adb_not_available"
+msgstr "ADB 命令不可用，请确保已安装 Android SDK 并将 adb 添加到环境变量中"
+
+msgid "waiting_seconds"
+msgstr "Waiting for {} seconds..."
+
+msgid "unsupported_action"
+msgstr "Unsupported action type: {}"
+
+# Agent related
+msgid "debug_full_prompt"
+msgstr "\n[DEBUG] Full prompt being sent to model (Iteration {}):"
+
+msgid "prompt_separator"
+msgstr "--------------------------------------------------"
+
+# Argument descriptions
+msgid "arg_testcase_help"
+msgstr "指定测试用例JSON文件路径 (默认: test_case.json)"
+
+msgid "arg_command_help"
+msgstr "指定要执行的测试命令，可以多次使用此参数添加多个命令"
+
+msgid "arg_no_history_help"
+msgstr "禁用历史记录功能，每次迭代不包含之前的执行历史"
+
+msgid "arg_debug_help"
+msgstr "启用调试模式，显示发送给模型的完整prompt和详细输出"
+
+msgid "arg_device_help"
+msgstr "指定要使用的设备ID，如果有多个设备连接时需要指定"
+
+msgid "arg_list_devices_help"
+msgstr "列出所有可用的Android设备"

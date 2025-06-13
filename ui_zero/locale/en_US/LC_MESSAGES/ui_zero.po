@@ -1,0 +1,146 @@
+# English translations for UI-Zero.
+# Copyright (C) 2025
+# This file is distributed under the same license as the UI-Zero package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: UI-Zero 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-13 10:00+0000\n"
+"PO-Revision-Date: 2025-06-13 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# CLI related
+msgid "starting_test_execution"
+msgstr "Starting test execution..., total tasks:"
+
+msgid "using_specified_device"
+msgstr "Using specified device:"
+
+msgid "using_default_device"
+msgstr "Using default device"
+
+msgid "debug_history_enabled"
+msgstr "[DEBUG] History feature: enabled"
+
+msgid "debug_history_disabled"
+msgstr "[DEBUG] History feature: disabled"
+
+msgid "debug_mode_enabled"
+msgstr "[DEBUG] Debug mode: enabled"
+
+msgid "debug_mode_disabled"
+msgstr "[DEBUG] Debug mode: disabled"
+
+msgid "starting_task"
+msgstr "==> Starting task [{}]: {} <=="
+
+msgid "task_completed"
+msgstr "Task [{}] completed.\n"
+
+msgid "task_not_completed"
+msgstr "Task [{}] not completed, continuing to next task"
+
+msgid "user_interrupted"
+msgstr "\nUser interrupted execution"
+
+msgid "all_tasks_completed"
+msgstr "All tasks completed."
+
+msgid "execution_error"
+msgstr "Error: {}"
+
+msgid "step_execution_error"
+msgstr "Error executing test step: {}"
+
+msgid "step_execution_log"
+msgstr "Executing test step: {}"
+
+# CLI description
+msgid "cli_description"
+msgstr "UI-Zero: AI-powered UI automation testing"
+
+msgid "usage_examples_title"
+msgstr "USAGE EXAMPLES:"
+
+# Device related
+msgid "available_devices"
+msgstr "Available Android devices:"
+
+msgid "no_devices_found"
+msgstr "No available Android devices found"
+
+msgid "device_list_error"
+msgstr "Failed to get device list: {}"
+
+# File loading related
+msgid "testcase_file_not_found"
+msgstr "Error: Test case file '{}' does not exist"
+
+msgid "testcase_file_json_error"
+msgstr "Error: Test case file '{}' JSON format error: {}"
+
+msgid "testcase_file_load_error"
+msgstr "Error: Failed to load test case file: {}"
+
+msgid "testcase_format_error"
+msgstr "Test case file format error, should be JSON array"
+
+msgid "using_cli_commands"
+msgstr "Using {} test commands specified from command line"
+
+msgid "loaded_from_file"
+msgstr "Loaded {} test cases from file '{}'"
+
+msgid "loaded_from_default"
+msgstr "Loaded {} test cases from default file '{}'"
+
+msgid "no_testcase_found"
+msgstr "Error: Test case file '{}' not found"
+
+msgid "testcase_options"
+msgstr "Please provide test cases using one of the following methods:\n  1. Create test_case.json file in current directory\n  2. Use --testcase parameter to specify test case file\n  3. Use --command parameter to specify test commands directly"
+
+msgid "use_help"
+msgstr "Use --help to view detailed help information"
+
+# ADB related
+msgid "adb_not_available"
+msgstr "ADB command not available, please ensure Android SDK is installed and adb is added to environment variables"
+
+msgid "waiting_seconds"
+msgstr "Waiting for {} seconds..."
+
+msgid "unsupported_action"
+msgstr "Unsupported action type: {}"
+
+# Agent related
+msgid "debug_full_prompt"
+msgstr "\n[DEBUG] Full prompt being sent to model (Iteration {}):"
+
+msgid "prompt_separator"
+msgstr "--------------------------------------------------"
+
+# Argument descriptions
+msgid "arg_testcase_help"
+msgstr "Specify test case JSON file path (default: test_case.json)"
+
+msgid "arg_command_help"
+msgstr "Specify test command to execute, can use this parameter multiple times to add multiple commands"
+
+msgid "arg_no_history_help"
+msgstr "Disable history feature, each iteration does not include previous execution history"
+
+msgid "arg_debug_help"
+msgstr "Enable debug mode to show full prompts sent to model and detailed output"
+
+msgid "arg_device_help"
+msgstr "Specify device ID to use when multiple devices are connected"
+
+msgid "arg_list_devices_help"
+msgstr "List all available Android devices"

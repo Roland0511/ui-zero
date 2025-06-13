@@ -1,0 +1,146 @@
+# UI-Zero Internationalization Template
+# Copyright (C) 2025
+# This file is distributed under the same license as the UI-Zero package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: UI-Zero 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-13 10:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# CLI related
+msgid "starting_test_execution"
+msgstr ""
+
+msgid "using_specified_device"
+msgstr ""
+
+msgid "using_default_device"
+msgstr ""
+
+msgid "debug_history_enabled"
+msgstr ""
+
+msgid "debug_history_disabled"
+msgstr ""
+
+msgid "debug_mode_enabled"
+msgstr ""
+
+msgid "debug_mode_disabled"
+msgstr ""
+
+msgid "starting_task"
+msgstr ""
+
+msgid "task_completed"
+msgstr ""
+
+msgid "task_not_completed"
+msgstr ""
+
+msgid "user_interrupted"
+msgstr ""
+
+msgid "all_tasks_completed"
+msgstr ""
+
+msgid "execution_error"
+msgstr ""
+
+msgid "step_execution_error"
+msgstr ""
+
+msgid "step_execution_log"
+msgstr ""
+
+# CLI description
+msgid "cli_description"
+msgstr ""
+
+msgid "usage_examples_title"
+msgstr ""
+
+# Device related
+msgid "available_devices"
+msgstr ""
+
+msgid "no_devices_found"
+msgstr ""
+
+msgid "device_list_error"
+msgstr ""
+
+# File loading related
+msgid "testcase_file_not_found"
+msgstr ""
+
+msgid "testcase_file_json_error"
+msgstr ""
+
+msgid "testcase_file_load_error"
+msgstr ""
+
+msgid "testcase_format_error"
+msgstr ""
+
+msgid "using_cli_commands"
+msgstr ""
+
+msgid "loaded_from_file"
+msgstr ""
+
+msgid "loaded_from_default"
+msgstr ""
+
+msgid "no_testcase_found"
+msgstr ""
+
+msgid "testcase_options"
+msgstr ""
+
+msgid "use_help"
+msgstr ""
+
+# ADB related
+msgid "adb_not_available"
+msgstr ""
+
+msgid "waiting_seconds"
+msgstr ""
+
+msgid "unsupported_action"
+msgstr ""
+
+# Agent related
+msgid "debug_full_prompt"
+msgstr ""
+
+msgid "prompt_separator"
+msgstr ""
+
+# Argument descriptions
+msgid "arg_testcase_help"
+msgstr ""
+
+msgid "arg_command_help"
+msgstr ""
+
+msgid "arg_no_history_help"
+msgstr ""
+
+msgid "arg_debug_help"
+msgstr ""
+
+msgid "arg_device_help"
+msgstr ""
+
+msgid "arg_list_devices_help"
+msgstr ""
