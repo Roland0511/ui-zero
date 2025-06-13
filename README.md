@@ -34,7 +34,7 @@ git clone https://github.com/Roland0511/ui-zero.git
 cd ui-zero
 
 # Install development dependencies with uv
-uv install
+uv sync
 
 # Or using pip
 pip install -e ".[dev]"
