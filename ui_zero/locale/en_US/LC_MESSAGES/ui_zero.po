@@ -144,3 +144,18 @@ msgstr "Specify device ID to use when multiple devices are connected"
 
 msgid "arg_list_devices_help"
 msgstr "List all available Android devices"
+
+# Usage examples
+msgid "usage_examples"
+msgstr ""
+"USAGE EXAMPLES:\n"
+"  %(prog)s                                      # Use default test case file (test_case.json)\n"
+"  %(prog)s --testcase my_test.json              # Specify a test case JSON file\n"
+"  %(prog)s --command \"open settings\"            # Specify a single test command\n"
+"  %(prog)s --command \"open settings\" --command \"close wifi\"  # Specify multiple test commands\n"
+"  %(prog)s --debug                              # Enable debug mode to show full prompts and detailed output\n"
+"  %(prog)s --no-history                         # Disable history feature, each iteration does not include previous execution history\n"
+"  %(prog)s --list-devices                       # List all available Android devices\n"
+"  %(prog)s --device <device_id>                 # Specify the device ID to use when multiple devices are connected\n"
+"  %(prog)s --version                            # Show version information\n"
+"  %(prog)s --help                               # Show this help message\n"

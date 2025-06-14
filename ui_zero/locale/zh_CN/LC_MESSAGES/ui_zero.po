@@ -144,3 +144,18 @@ msgstr "指定要使用的设备ID，如果有多个设备连接时需要指定"
 
 msgid "arg_list_devices_help"
 msgstr "列出所有可用的Android设备"
+
+# Usage examples
+msgid "usage_examples"
+msgstr ""
+"使用示例:\n"
+"  %(prog)s                                      # 使用默认测试用例文件 (test_case.json)\n"
+"  %(prog)s --testcase my_test.json              # 指定测试用例JSON文件\n"
+"  %(prog)s --command \"打开设置\"                    # 指定单个测试命令\n"
+"  %(prog)s --command \"打开设置\" --command \"关闭wifi\"  # 指定多个测试命令\n"
+"  %(prog)s --debug                              # 启用调试模式，显示完整prompt和详细输出\n"
+"  %(prog)s --no-history                         # 禁用历史记录功能，每次迭代不包含之前的执行历史\n"
+"  %(prog)s --list-devices                       # 列出所有可用的Android设备\n"
+"  %(prog)s --device <device_id>                 # 指定要使用的设备ID（有多个设备连接时）\n"
+"  %(prog)s --version                            # 显示版本信息\n"
+"  %(prog)s --help                               # 显示此帮助信息\n"

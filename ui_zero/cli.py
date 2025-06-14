@@ -298,19 +298,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=get_text("cli_description"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-USEAGE EXAMPLES:
-  %(prog)s                                      # Use default test case file (test_case.json)
-  %(prog)s --testcase my_test.json              # Specify a test case JSON file
-  %(prog)s --command "open settings"            # Specify a single test command
-  %(prog)s --command "open settings" --command "close wifi"  # Specify multiple test commands
-  %(prog)s --debug                              # Enable debug mode to show full prompts and detailed output
-  %(prog)s --no-history                         # Disable history feature, each iteration does not include previous execution history
-  %(prog)s --list-devices                       # List all available Android devices
-  %(prog)s --device <device_id>                 # Specify the device ID to use when multiple devices are connected
-  %(prog)s --version                            # Show version information
-  %(prog)s --help                               # Show this help message
-        """,
+        epilog=get_text("usage_examples"),
     )
 
     # 互斥参数组：要么使用testcase文件，要么使用command参数
