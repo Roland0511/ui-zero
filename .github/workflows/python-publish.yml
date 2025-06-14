@@ -37,8 +37,12 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add pyproject.toml ui_zero/__init__.py ui_zero/cli.py
-          git commit -m "bump: Update version to ${{ github.ref_name }}" || exit 0
-          git push
+          if git diff --staged --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "bump: Update version to ${{ github.ref_name }}"
+            git push origin HEAD:main
+          fi
 
       - name: Build release distributions
         run: |
