@@ -1,6 +1,6 @@
 # UI-Zero
 
-[English](README.md) | **中文**
+[English](https://github.com/Roland0511/ui-zero#readme) | **中文**
 
 一个基于AI的UI自动化测试Python库。该库提供命令行工具，使用计算机视觉和AI模型进行自动化UI测试。
 
@@ -77,7 +77,7 @@ uiz --command "找到设置图标并点击"
 # 列出可用设备
 uiz --list-devices
 
-# 使用特定设备
+# 使用特定设备（连接多个设备时推荐）
 uiz --device DEVICE_ID --command "找到设置图标并点击"
 
 # 启用调试模式
@@ -250,13 +250,18 @@ ui_zero/
    adb kill-server && adb start-server
    ```
 
-3. **API密钥问题**
+3. **检测到多个设备**
+   - 当连接多个设备时，工具会自动选择第一个设备
+   - 使用 `--device DEVICE_ID` 指定特定设备以避免歧义
+   - 使用 `--list-devices` 查看所有可用设备
+
+4. **API密钥问题**
    ```bash
    # 确保环境变量已设置
    echo $ARK_API_KEY
    ```
 
-4. **文本输入问题**
+5. **文本输入问题**
    - 确保设备已安装ADBKeyboard应用
    - 在设备设置中启用ADBKeyboard作为输入法
 

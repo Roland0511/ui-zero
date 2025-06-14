@@ -1,6 +1,6 @@
 # UI-Zero
 
-**English** | [中文](README_zh.md)
+**English** | [中文](https://github.com/Roland0511/ui-zero/blob/main/README_zh.md)
 
 A Python library for AI-powered UI automation testing. This library provides command-line tools for automated UI testing using computer vision and AI models.
 
@@ -80,7 +80,7 @@ uiz --command "find and click settings icon"
 # List available devices
 uiz --list-devices
 
-# Use specific device
+# Use specific device (recommended when multiple devices are connected)
 uiz --device DEVICE_ID --command "find and click settings icon"
 
 # Enable debug mode
@@ -253,13 +253,18 @@ Create a `test_case.json` file:
    adb kill-server && adb start-server
    ```
 
-3. **API key issues**
+3. **Multiple devices detected**
+   - When multiple devices are connected, the tool automatically selects the first device
+   - Use `--device DEVICE_ID` to specify a particular device to avoid ambiguity
+   - Use `--list-devices` to see all available devices
+
+4. **API key issues**
    ```bash
    # Ensure environment variable is set
    echo $ARK_API_KEY
    ```
 
-4. **Text input issues**
+5. **Text input issues**
    - Ensure ADBKeyboard app is installed on device
    - Enable ADBKeyboard as input method in device settings
 
