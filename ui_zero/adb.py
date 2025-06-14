@@ -22,7 +22,9 @@ class ADBTool:
             device_id: 设备ID，如果有多个设备连接，需要指定
         """
         self.device_id = device_id
+        self.auto_selected_device = False
         self._check_adb_available()
+        self._auto_select_device_if_needed()
 
     def _check_adb_available(self) -> None:
         """检查ADB是否可用"""
@@ -35,6 +37,17 @@ class ADBTool:
             )
         except (subprocess.SubprocessError, FileNotFoundError):
             raise RuntimeError(get_text("adb_not_available"))
+
+    def _auto_select_device_if_needed(self) -> None:
+        """如果没有指定设备ID但有多个设备，自动选择第一个设备"""
+        if self.device_id is None:
+            devices = self.get_connected_devices()
+            if len(devices) > 1:
+                # 有多个设备，自动选择第一个
+                self.device_id = devices[0]
+                self.auto_selected_device = True
+            elif len(devices) == 0:
+                raise RuntimeError(get_text("no_devices_found"))
 
     def _build_command(self, cmd: List[str]) -> List[str]:
         """构建带有设备ID的ADB命令"""

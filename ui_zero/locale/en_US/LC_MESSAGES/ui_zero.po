@@ -25,6 +25,9 @@ msgstr "Using specified device:"
 msgid "using_default_device"
 msgstr "Using default device"
 
+msgid "using_auto_selected_device"
+msgstr "Using auto-selected device: {}"
+
 msgid "debug_history_enabled"
 msgstr "[DEBUG] History feature: enabled"
 
@@ -328,3 +331,10 @@ msgstr "Base URL similar to OpenAI API for specifying the API service endpoint"
 
 msgid "env_setup_doc_hint"
 msgstr "Read https://juniper-switch-f10.notion.site/GUI-Model-Deployment-Guide-17b5350241e280058e98cea60317de71 to learn how to deploy and obtain the API Key."
+
+# Multi-device selection messages
+msgid "multiple_devices_auto_selected"
+msgstr "⚠️ Multiple devices detected, automatically selected the first device: {}"
+
+msgid "recommend_specify_device"
+msgstr "💡 Recommend using --device parameter to specify device ID to avoid ambiguity"

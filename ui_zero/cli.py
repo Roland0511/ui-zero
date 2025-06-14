@@ -158,6 +158,10 @@ def run_testcases(
         print(get_text("starting_test_execution"), len(testcase_prompts))
         if device_id:
             print(get_text("using_specified_device"), device_id)
+        elif adb_tool.auto_selected_device:
+            print(get_text("multiple_devices_auto_selected").format(adb_tool.device_id))
+            print(get_text("recommend_specify_device"))
+            print(get_text("using_auto_selected_device").format(adb_tool.device_id))
         else:
             print(get_text("using_default_device"))
         if debug:

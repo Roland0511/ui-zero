@@ -25,6 +25,9 @@ msgstr "使用指定设备:"
 msgid "using_default_device"
 msgstr "使用默认设备"
 
+msgid "using_auto_selected_device"
+msgstr "使用自动选择的设备: {}"
+
 msgid "debug_history_enabled"
 msgstr "[DEBUG] 历史记录功能: 启用"
 
@@ -328,3 +331,10 @@ msgstr "类似OpenAI API的基础URL，用于指定API服务端点"
 
 msgid "env_setup_doc_hint"
 msgstr "阅读 https://bytedance.sg.larkoffice.com/docx/TCcudYwyIox5vyxiSDLlgIsTgWf 了解如何部署并获取API Key。"
+
+# Multi-device selection messages
+msgid "multiple_devices_auto_selected"
+msgstr "⚠️ 检测到多个设备，自动选择第一个设备: {}"
+
+msgid "recommend_specify_device"
+msgstr "💡 建议使用 --device 参数指定设备ID以避免歧义"
