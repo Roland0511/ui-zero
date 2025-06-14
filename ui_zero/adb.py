@@ -297,7 +297,7 @@ class ADBTool:
             # adb shell ime reset
             self.execute_command(["shell", "ime", "reset"])
         except Exception as e:
-            print(f"使用adbkeyboard输入文本失败: {e}，尝试使用input方法")
+            print(get_text("adb_keyboard_input_failed").format(e))
             self.execute_command(["shell", "input", "text", f'"{text}"'])
 
     def get_screen_size(self) -> Tuple[int, int]:
@@ -633,35 +633,35 @@ def test():
 
     # 获取已连接设备
     devices = adb.get_connected_devices()
-    print(f"已连接设备: {devices}")
+    print(get_text("connected_devices").format(devices))
 
     # 如果有设备连接，执行一些操作
     if devices:
         # 设置屏幕常亮
         adb.set_screen_always_on(True)
-        print("已设置屏幕常亮")
+        print(get_text("screen_always_on_enabled"))
 
         # 截图并保存
         screenshot_path = adb.take_screenshot("test_screenshot.png")
-        print(f"截图已保存到: {screenshot_path}")
+        print(get_text("screenshot_saved").format(screenshot_path))
 
         # 模拟点击屏幕中心
         width, height = adb.get_screen_size()
         center_x, center_y = width // 2, height // 2
         adb.tap(center_x, center_y)
-        print(f"已点击屏幕中心点 ({center_x}, {center_y})")
+        print(get_text("tapped_center").format(center_x, center_y))
 
         # 模拟滑动
         adb.swipe(center_x, center_y + 200, center_x, center_y - 200, 500)
-        print("已完成向上滑动操作")
+        print(get_text("swipe_up_completed"))
 
         # 按下Home键
         adb.press_home()
-        print("已按下Home键")
+        print(get_text("home_key_pressed"))
 
         # 取消屏幕常亮
         adb.disable_screen_always_on()
-        print("已取消屏幕常亮")
+        print(get_text("screen_always_on_disabled"))
 
         # 示例：获取实时流并播放（依赖 ffplay 或其他 handler）
         def handle_stream(data: bytes) -> None:
@@ -669,15 +669,15 @@ def test():
             with open("stream_temp.h264", "ab") as f:
                 f.write(data)
 
-        print("开始获取实时屏幕流（10秒）...")
+        print(get_text("screen_stream_starting"))
         # 清空临时文件
         if os.path.exists("stream_temp.h264"):
             os.remove("stream_temp.h264")
         adb.get_screen_stream(output_handler=handle_stream, duration_sec=10)
-        print("屏幕流结束")
+        print(get_text("screen_stream_ended"))
 
         # 使用 ffmpeg 将 h264 流转换为 png（保存第一帧）
-        print("正在提取第一帧为 PNG...")
+        print(get_text("extracting_first_frame"))
         import ffmpeg
 
         (
@@ -685,7 +685,7 @@ def test():
             .output("stream_output.png", vframes=1)
             .run(overwrite_output=True)
         )
-        print("已保存为 stream_output.png")
+        print(get_text("saved_as_png"))
 
 
 def test_type():

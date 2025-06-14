@@ -145,6 +145,163 @@ msgstr "Specify device ID to use when multiple devices are connected"
 msgid "arg_list_devices_help"
 msgstr "List all available Android devices"
 
+msgid "arg_setup_env_help"
+msgstr "Interactive setup for environment variable configuration"
+
+msgid "arg_validate_env_help"
+msgstr "Validate current environment configuration"
+
+# Environment configuration messages
+msgid "env_config_saved"
+msgstr "Environment configuration saved to: {}"
+
+msgid "env_setup_wizard_title"
+msgstr "🔧 UI-Zero Environment Configuration Wizard"
+
+msgid "env_all_configured"
+msgstr "✅ All environment variables are correctly configured!"
+
+msgid "env_missing_vars_found"
+msgstr "❌ Found {} missing environment variables:"
+
+msgid "env_invalid_vars_found"
+msgstr "⚠️ Found {} invalid environment variables:"
+
+msgid "env_prompt_input_vars"
+msgstr "Please input values for these environment variables:\n{}"
+
+msgid "env_prompt_reinput_vars"
+msgstr "Please re-enter correct values for these environment variables:"
+
+msgid "env_config_var_title"
+msgstr "Configure environment variable: {}"
+
+msgid "env_config_description"
+msgstr "Description: {}"
+
+msgid "env_config_example"
+msgstr "Example: {}"
+
+msgid "env_input_prompt"
+msgstr "Please enter value for {}: "
+
+msgid "env_value_empty_error"
+msgstr "❌ Value cannot be empty, please re-enter"
+
+msgid "env_value_format_error"
+msgstr "❌ Input value format is incorrect"
+
+msgid "env_api_key_format_hint"
+msgstr "   API key length should be greater than 10 characters"
+
+msgid "env_url_format_hint"
+msgstr "   URL should start with 'http://' or 'https://'"
+
+msgid "env_config_completed"
+msgstr "✅ Environment configuration completed! Configured {} environment variables"
+
+msgid "env_config_file_location"
+msgstr "Configuration file location: {}"
+
+msgid "env_validation_failed"
+msgstr "❌ Environment configuration validation failed:"
+
+msgid "env_missing_vars_list"
+msgstr "   Missing environment variables ({} total):"
+
+msgid "env_invalid_vars_list"  
+msgstr "   Invalid environment variables ({} total):"
+
+msgid "env_reconfigure_hint"
+msgstr "💡 Please run the following command to reconfigure environment:"
+
+msgid "env_setup_command_hint"
+msgstr "   uiz --setup-env"
+
+msgid "env_validation_passed"
+msgstr "✅ Environment configuration validation passed"
+
+msgid "env_api_test_running"
+msgstr "🔍 API connection test..."
+
+msgid "env_api_test_passed"
+msgstr "✅ API configuration format validation passed"
+
+msgid "env_api_test_failed"
+msgstr "❌ API connection test failed: {}"
+
+msgid "env_config_incomplete_skip"
+msgstr "❌ Environment configuration incomplete, but interactive configuration was skipped"
+
+# ADB related messages
+msgid "adb_keyboard_input_failed"
+msgstr "Failed to input text using adbkeyboard: {}, trying input method"
+
+msgid "connected_devices"
+msgstr "Connected devices: {}"
+
+msgid "screen_always_on_enabled"
+msgstr "Screen always-on enabled"
+
+msgid "screenshot_saved"
+msgstr "Screenshot saved to: {}"
+
+msgid "tapped_center"
+msgstr "Tapped screen center point ({}, {})"
+
+msgid "swipe_up_completed"
+msgstr "Upward swipe completed"
+
+msgid "home_key_pressed"
+msgstr "Home key pressed"
+
+msgid "screen_always_on_disabled"
+msgstr "Screen always-on disabled"
+
+msgid "screen_stream_starting"
+msgstr "Starting real-time screen stream (10 seconds)..."
+
+msgid "screen_stream_ended"
+msgstr "Screen stream ended"
+
+msgid "extracting_first_frame"
+msgstr "Extracting first frame as PNG..."
+
+msgid "saved_as_png"
+msgstr "Saved as stream_output.png"
+
+# Model related messages
+msgid "model_response_chunk"
+msgstr "Model response chunk:\n {}"
+
+msgid "model_response_empty"
+msgstr "Model response is empty, please check input or model configuration"
+
+msgid "model_response_debug"
+msgstr "Model response:\n {}"
+
+msgid "api_error"
+msgstr "API error: {}"
+
+msgid "debug_box_missing_data"
+msgstr "Cannot display debug box: missing image path or parsed output"
+
+msgid "debug_box_error"
+msgstr "Error displaying debug box: {}"
+
+# CLI messages that need localization
+msgid "checking_env_config"
+msgstr "🔍 Checking environment configuration..."
+
+msgid "env_config_incomplete_invalid"
+msgstr "❌ Environment configuration incomplete or invalid"
+
+msgid "run_setup_env_hint"
+msgstr "💡 Please run 'uiz --setup-env' to configure environment"
+
+msgid "run_validate_env_hint"
+msgstr "💡 Or run 'uiz --validate-env' to check current configuration"
+
 # Usage examples
 msgid "usage_examples"
 msgstr ""
@@ -157,5 +314,17 @@ msgstr ""
 "  %(prog)s --no-history                         # Disable history feature, each iteration does not include previous execution history\n"
 "  %(prog)s --list-devices                       # List all available Android devices\n"
 "  %(prog)s --device <device_id>                 # Specify the device ID to use when multiple devices are connected\n"
+"  %(prog)s --setup-env                          # Interactive setup for environment configuration\n"
+"  %(prog)s --validate-env                       # Validate current environment configuration\n"
 "  %(prog)s --version                            # Show version information\n"
 "  %(prog)s --help                               # Show this help message\n"
+
+# Environment variable descriptions
+msgid "env_openai_api_key_desc"
+msgstr "API key similar to OpenAI API Key for connecting to model services"
+
+msgid "env_openai_base_url_desc"
+msgstr "Base URL similar to OpenAI API for specifying the API service endpoint"
+
+msgid "env_setup_doc_hint"
+msgstr "Read https://juniper-switch-f10.notion.site/GUI-Model-Deployment-Guide-17b5350241e280058e98cea60317de71 to learn how to deploy and obtain the API Key."

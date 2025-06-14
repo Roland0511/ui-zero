@@ -27,6 +27,7 @@ from typing import List, Optional, Callable
 from .agent import AndroidAgent, ActionOutput
 from .adb import ADBTool
 from .localization import get_text
+from .env_config import ensure_env_config, setup_env_interactive, validate_env
 
 # 加载环境变量
 dotenv.load_dotenv()
@@ -326,7 +327,24 @@ def main():
         "--list-devices", action="store_true", help=get_text("arg_list_devices_help")
     )
 
+    parser.add_argument(
+        "--setup-env", action="store_true", help=get_text("arg_setup_env_help")
+    )
+
+    parser.add_argument(
+        "--validate-env", action="store_true", help=get_text("arg_validate_env_help")
+    )
+
     args = parser.parse_args()
+
+    # 处理环境配置命令
+    if args.setup_env:
+        success = setup_env_interactive()
+        sys.exit(0 if success else 1)
+
+    if args.validate_env:
+        success = validate_env()
+        sys.exit(0 if success else 1)
 
     # 处理列出设备命令
     if args.list_devices:
@@ -338,6 +356,13 @@ def main():
         else:
             print(get_text("no_devices_found"))
         sys.exit(0)
+
+    # 在执行主要功能前检查环境配置
+    print(get_text("checking_env_config"))
+    if not ensure_env_config(skip_interactive=True):
+        print(get_text("env_config_incomplete_invalid"))
+        success = setup_env_interactive()
+        sys.exit(0 if success else 1)
 
     # 确定测试用例来源
     if args.command:

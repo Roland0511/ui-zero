@@ -12,6 +12,7 @@ from openai import OpenAI
 from openai.types.chat import ChatCompletionChunk
 from typing import Callable, Optional
 from .arkmodel import ArkModel
+from ..localization import get_text
 
 SYSTEM_PROMPT = """
     You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task. 
@@ -483,7 +484,7 @@ class DoubaoUITarsModel(ArkModel):
             for chunk in stream:
                 # cc:ChatCompletionChunk = chunk
                 if debug:
-                    print(f"模型响应分块:\n {chunk}")
+                    print(get_text("model_response_chunk").format(chunk))
                 # 处理分块响应
                 if (
                     chunk.choices
@@ -510,11 +511,11 @@ class DoubaoUITarsModel(ArkModel):
                 model_response = full_response.strip()
 
             if not model_response:
-                print("模型响应为空，请检查输入或模型配置")
+                print(get_text("model_response_empty"))
                 return ActionOutput()
 
             if debug:
-                print(f"模型响应:\n {model_response}")
+                print(get_text("model_response_debug").format(model_response))
             # 解析输出
             parsed_output = parse_action_output(model_response)
 
@@ -543,12 +544,12 @@ class DoubaoUITarsModel(ArkModel):
             return parsed_output
 
         except Exception as e:
-            print(f"API错误: {e}")
+            print(get_text("api_error").format(e))
             return ActionOutput()
 
     def show_debug_box(self, image_path: str, parsed_output: ActionOutput):
         if not image_path or not parsed_output:
-            print("无法显示调试框：缺少图片路径或解析输出")
+            print(get_text("debug_box_missing_data"))
             return
 
         try:
@@ -567,4 +568,4 @@ class DoubaoUITarsModel(ArkModel):
 
             draw_box_and_show(image, start_point_abs, end_point_abs)
         except Exception as e:
-            print(f"显示调试框时出错: {e}")
+            print(get_text("debug_box_error").format(e))

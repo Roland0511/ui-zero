@@ -34,7 +34,7 @@ git clone https://github.com/Roland0511/ui-zero.git
 cd ui-zero
 
 # 使用uv安装开发依赖
-uv install
+uv sync --dev
 
 # 或使用pip
 pip install -e ".[dev]"
