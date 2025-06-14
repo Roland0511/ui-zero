@@ -69,6 +69,7 @@ def update_init_version(version: str) -> None:
     
     # 读取文件内容
     content = init_path.read_text(encoding='utf-8')
+    print(f"DEBUG: Current __init__.py content:\n{content}")
     
     # 替换版本号
     new_content = re.sub(
@@ -79,6 +80,12 @@ def update_init_version(version: str) -> None:
     )
     
     if new_content == content:
+        print(f"DEBUG: No change detected. Looking for pattern: ^__version__\\s*=\\s*[\"'][^\"']*[\"']")
+        # 尝试更宽松的匹配
+        lines = content.split('\n')
+        for i, line in enumerate(lines):
+            if '__version__' in line:
+                print(f"DEBUG: Found __version__ on line {i+1}: {repr(line)}")
         raise ValueError("Failed to find __version__ field in __init__.py")
     
     # 写回文件
