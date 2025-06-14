@@ -52,6 +52,13 @@ def update_pyproject_version(version: str) -> None:
     )
     
     if new_content == content:
+        # 检查是否版本已经是目标版本
+        current_version_match = re.search(r'^version\s*=\s*["\']([^"\']*)["\']', content, re.MULTILINE)
+        if current_version_match:
+            current_version = current_version_match.group(1)
+            if current_version == version:
+                print(f"pyproject.toml version is already {version}, no update needed")
+                return
         raise ValueError("Failed to find version field in pyproject.toml")
     
     # 写回文件
@@ -69,7 +76,6 @@ def update_init_version(version: str) -> None:
     
     # 读取文件内容
     content = init_path.read_text(encoding='utf-8')
-    print(f"DEBUG: Current __init__.py content:\n{content}")
     
     # 替换版本号
     new_content = re.sub(
@@ -80,12 +86,13 @@ def update_init_version(version: str) -> None:
     )
     
     if new_content == content:
-        print(f"DEBUG: No change detected. Looking for pattern: ^__version__\\s*=\\s*[\"'][^\"']*[\"']")
-        # 尝试更宽松的匹配
-        lines = content.split('\n')
-        for i, line in enumerate(lines):
-            if '__version__' in line:
-                print(f"DEBUG: Found __version__ on line {i+1}: {repr(line)}")
+        # 检查是否版本已经是目标版本
+        current_version_match = re.search(r'__version__\s*=\s*["\']([^"\']*)["\']', content)
+        if current_version_match:
+            current_version = current_version_match.group(1)
+            if current_version == version:
+                print(f"__init__.py version is already {version}, no update needed")
+                return
         raise ValueError("Failed to find __version__ field in __init__.py")
     
     # 写回文件
@@ -112,6 +119,13 @@ def update_cli_version(version: str) -> None:
     )
     
     if new_content == content:
+        # 检查是否版本已经是目标版本
+        current_version_match = re.search(r'version="UI-Zero v([^"]*)"', content)
+        if current_version_match:
+            current_version = current_version_match.group(1)
+            if current_version == version:
+                print(f"cli.py version is already {version}, no update needed")
+                return
         raise ValueError("Failed to find version field in cli.py")
     
     # 写回文件
