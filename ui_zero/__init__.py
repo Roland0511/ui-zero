@@ -10,10 +10,4 @@ __version__ = "0.1.0"
 __author__ = "Happy Elements"
 __description__ = "AI-powered UI automation testing library"
 
-__all__ = [
-    "AndroidAgent",
-    "ActionOutput", 
-    "ADBTool",
-    "DoubaoUITarsModel",
-    "ArkModel"
-]
+__all__ = ["AndroidAgent", "ActionOutput", "ADBTool", "DoubaoUITarsModel", "ArkModel"]

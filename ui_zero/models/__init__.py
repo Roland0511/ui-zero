@@ -1,3 +1,4 @@
 from .doubao_ui_tars import DoubaoUITarsModel, ActionOutput
 from .arkmodel import ArkModel
-__all__ = ['ArkModel', 'DoubaoUITarsModel', 'ActionOutput']
+
+__all__ = ["ArkModel", "DoubaoUITarsModel", "ActionOutput"]
