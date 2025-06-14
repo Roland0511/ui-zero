@@ -26,9 +26,14 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Update version from tag
+        run: |
+          python scripts/update_version_from_tag.py
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
       - name: Build release distributions
         run: |
-          # NOTE: put your own distribution build steps here.
           python -m pip install build
           python -m build
 
@@ -50,13 +55,8 @@ jobs:
     # For more information, see: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules
     environment:
       name: pypi
-      # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
-      # url: https://pypi.org/p/YOURPROJECT
-      #
-      # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
-      # ALTERNATIVE: exactly, uncomment the following line instead:
-      # url: https://pypi.org/project/YOURPROJECT/${{ github.event.release.name }}
-
+      url: https://pypi.org/project/ui-zero/${{ github.ref_name }}
+co
     steps:
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4
