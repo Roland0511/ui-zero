@@ -1,6 +1,6 @@
 [project]
 name = "ui-zero"
-version = "0.1.2"
+version = "0.1.3"
 description = "AI-powered UI automation testing library"
 readme = "README.md"
 requires-python = ">=3.10"
