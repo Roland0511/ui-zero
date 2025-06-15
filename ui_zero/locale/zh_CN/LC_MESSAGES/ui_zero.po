@@ -274,6 +274,75 @@ msgstr "==> 执行步骤 [{}]: 等待 {} 毫秒 <=="
 msgid "sleep_action_completed"
 msgstr "步骤 [{}] 等待完成。"
 
+msgid "sleeping_for_ms"
+msgstr "睡眠 {} 毫秒..."
+
+msgid "waiting_for_ms"
+msgstr "等待 {} 毫秒..."
+
+msgid "starting_wait_action"
+msgstr "==> 执行步骤 [{}]: 等待 {} 毫秒 <=="
+
+msgid "wait_action_completed"
+msgstr "步骤 [{}] 等待完成。"
+
+msgid "continue_on_error_message"
+msgstr "继续执行下一个步骤 (continueOnError=true)"
+
+msgid "arkmodel_run_not_implemented"
+msgstr "run方法应该在子类中实现"
+
+msgid "point_conversion_invalid_format"
+msgstr "输入参数格式应为: point=[x,y], img_size=(width,height)"
+
+msgid "image_file_not_found"
+msgstr "图片文件未找到: {}"
+
+msgid "image_input_invalid_type"
+msgstr "图片输入必须是文件路径字符串或字节数据"
+
+msgid "failed_to_get_screen_size"
+msgstr "无法获取屏幕尺寸，输出: {}"
+
+msgid "wait_callback_description"
+msgstr "等待 {}ms"
+
+msgid "wait_action_thought_completed"
+msgstr "等待动作完成: {}毫秒"
+
+msgid "wait_action_content_completed"
+msgstr "等待 {}ms 完成"
+
+msgid "execute_wait_action_thought"
+msgstr "执行等待动作: {}毫秒"
+
+msgid "unsupported_action_type"
+msgstr "不支持的动作类型: {}"
+
+msgid "ai_wait_for_condition"
+msgstr "等待条件满足: {}"
+
+msgid "ai_assert_condition"
+msgstr "验证: {}"
+
+msgid "step_not_completed_warning"
+msgstr "步骤 {} 未完成"
+
+msgid "user_interrupted_execution"
+msgstr "用户中断执行"
+
+msgid "step_execution_error"
+msgstr "执行步骤 {} 时出错: {}"
+
+msgid "unnamed_task"
+msgstr "未命名任务"
+
+msgid "step_number"
+msgstr "步骤 {}"
+
+msgid "command_number"
+msgstr "命令 {}"
+
 msgid "tapped_center"
 msgstr "已点击屏幕中心点 ({}, {})"
 

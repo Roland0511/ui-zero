@@ -30,9 +30,16 @@ def take_action(adb: ADBTool, output: ActionOutput):
     elif output.is_press_power_action():
         adb.press_power()
     elif output.is_wait_action():
-        wait_time = 2  # Default wait time
-        print(get_text("waiting_seconds", wait_time))
-        time.sleep(wait_time)
+        # Wait action with duration from content field (in milliseconds)
+        # If no content specified, use default 2000ms (2 seconds)
+        if output.content:
+            duration_ms = int(output.content)
+        else:
+            duration_ms = 2000  # Default 2 seconds
+
+        duration_seconds = duration_ms / 1000.0
+        print(get_text("waiting_for_ms", duration_ms))
+        time.sleep(duration_seconds)
     else:
         print(get_text("unsupported_action", output.action))
 

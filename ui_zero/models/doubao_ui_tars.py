@@ -215,7 +215,7 @@ def coordinates_convert(point, img_size):
     """
     # 参数校验
     if len(point) != 2 or len(img_size) != 2:
-        raise ValueError("输入参数格式应为: point=[x,y], img_size=(width,height)")
+        raise ValueError(get_text("point_conversion_invalid_format"))
 
     # 解包图片尺寸
     img_width, img_height = img_size
@@ -339,13 +339,13 @@ def image_to_base64(image_path_or_bytes):
     elif isinstance(image_path_or_bytes, str):
         # 如果是字符串路径，读取文件
         if not os.path.exists(image_path_or_bytes):
-            raise FileNotFoundError(f"Image file not found: {image_path_or_bytes}")
+            raise FileNotFoundError(get_text("image_file_not_found", image_path_or_bytes))
         if not ext:
             ext = Path(image_path_or_bytes).suffix.lower()
         with open(image_path_or_bytes, "rb") as image_file:
             binary_data = image_file.read()
     else:
-        raise TypeError("image_path_or_bytes must be a file path string or bytes")
+        raise TypeError(get_text("image_input_invalid_type"))
 
     base64_data = base64.b64encode(binary_data).decode("utf-8")
     return f"data:{mime_types.get(ext, 'image/png')};base64,{base64_data}"
@@ -531,7 +531,7 @@ class DoubaoUITarsModel(ArkModel):
                 # 如果是字节流，创建Image对象
                 img = Image.open(io.BytesIO(image))
             else:
-                raise TypeError("image must be a file path string or bytes")
+                raise TypeError(get_text("image_input_invalid_type"))
             if parsed_output.point:
                 parsed_output.point_abs = coordinates_convert(
                     parsed_output.point, img.size

@@ -28,7 +28,7 @@ import dotenv
 import yaml
 
 from .adb import ADBTool
-from .agent import ActionOutput, AndroidAgent
+from .agent import ActionOutput, AndroidAgent, take_action
 from .env_config import ensure_env_config, setup_env_interactive, validate_env
 from .localization import get_text
 
@@ -148,7 +148,7 @@ def load_yaml_config(yaml_file: str) -> Dict[str, Any]:
 
 def convert_yaml_to_testcases(
     config: Dict[str, Any],
-) -> tuple[List[Union[str, Dict[str, Any]]], Optional[str]]:
+) -> tuple[List[Dict[str, Any]], Optional[str]]:
     """将YAML配置转换为测试用例列表"""
     testcases = []
     device_id = None
@@ -165,8 +165,8 @@ def convert_yaml_to_testcases(
         if not isinstance(task, dict) or "flow" not in task:
             continue
 
-        # task_name = task.get("name", "未命名任务")
-        # continue_on_error = task.get("continueOnError", False)
+        task_name = task.get("name", get_text("unnamed_task"))
+        continue_on_error = task.get("continueOnError", False)
 
         # 处理flow中的每个动作
         for action in task["flow"]:
@@ -175,29 +175,178 @@ def convert_yaml_to_testcases(
 
             # 处理AI动作
             if "ai" in action:
-                testcases.append(action["ai"])
+                testcases.append(
+                    {
+                        "type": "ai_action",
+                        "prompt": action["ai"],
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
             elif "aiAction" in action:
-                testcases.append(action["aiAction"])
+                testcases.append(
+                    {
+                        "type": "ai_action",
+                        "prompt": action["aiAction"],
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
             elif "aiWaitFor" in action:
                 # 暂时将等待条件作为普通AI动作处理
                 # timeout = action.get("timeout", 30000)
                 wait_prompt = action["aiWaitFor"]
-                testcases.append(f"等待条件满足: {wait_prompt}")
+                testcases.append(
+                    {
+                        "type": "ai_action",
+                        "prompt": get_text("ai_wait_for_condition", wait_prompt),
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
             elif "aiAssert" in action:
                 # 将断言作为AI动作处理
                 assert_prompt = action["aiAssert"]
                 # error_msg = action.get("errorMessage", "断言失败")
-                testcases.append(f"验证: {assert_prompt}")
+                testcases.append(
+                    {
+                        "type": "ai_action",
+                        "prompt": get_text("ai_assert_condition", assert_prompt),
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
             elif "sleep" in action:
-                # 添加sleep动作到测试用例列表
-                sleep_ms = action["sleep"]
-                testcases.append({"type": "sleep", "duration": sleep_ms})
+                # 将sleep动作转换为wait动作（向后兼容）
+                wait_ms = action["sleep"]
+                testcases.append(
+                    {
+                        "type": "wait",
+                        "duration": wait_ms,
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
+            elif "wait" in action:
+                # 添加wait动作到测试用例列表
+                wait_ms = action["wait"]
+                testcases.append(
+                    {
+                        "type": "wait",
+                        "duration": wait_ms,
+                        "continueOnError": continue_on_error,
+                        "taskName": task_name,
+                    }
+                )
 
     return testcases, device_id
 
 
+def execute_wait_action(duration_ms: int, task_name: str = "") -> ActionOutput:
+    """
+    执行等待动作，返回ActionOutput对象
+
+    Args:
+        duration_ms: 等待时间（毫秒）
+        task_name: 任务名称
+
+    Returns:
+        ActionOutput对象，表示等待动作已完成
+    """
+    return ActionOutput(
+        thought=get_text("execute_wait_action_thought", duration_ms),
+        action="wait",
+        content=str(duration_ms),
+    )
+
+
+def execute_unified_action(
+    action_dict: Dict[str, Any],
+    agent: AndroidAgent,
+    screenshot_callback: Optional[Callable[[bytes], None]] = None,
+    preaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
+    postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
+    stream_resp_callback: Optional[Callable[[str, bool], None]] = None,
+    include_history: bool = True,
+    debug: bool = False,
+    is_cli_mode: bool = False,
+) -> ActionOutput:
+    """
+    统一的动作执行函数，支持AI动作和直接指令（如睡眠）
+
+    Args:
+        action_dict: 动作字典，包含type、prompt等信息
+        agent: AndroidAgent实例
+        其他参数同run_testcases
+
+    Returns:
+        ActionOutput对象
+    """
+    action_type = action_dict.get("type", "ai_action")
+    task_name = action_dict.get("taskName", "")
+
+    if action_type == "wait":
+        # 处理等待动作
+        duration_ms = action_dict.get("duration", 2000)  # 默认2秒
+
+        if is_cli_mode:
+            print(get_text("starting_wait_action", task_name, duration_ms))
+
+        # 创建等待动作的ActionOutput
+        wait_output = execute_wait_action(duration_ms, task_name)
+
+        # 执行动作前回调
+        if preaction_callback:
+            preaction_callback(get_text("wait_callback_description", duration_ms), wait_output)
+
+        # 执行等待动作
+        take_action(agent.adb, wait_output)
+
+        # 执行动作后回调
+        if postaction_callback:
+            postaction_callback(get_text("wait_callback_description", duration_ms), wait_output)
+
+        if is_cli_mode:
+            print(get_text("wait_action_completed", task_name))
+
+        # 等待动作总是成功完成
+        return ActionOutput(
+            thought=get_text("wait_action_thought_completed", duration_ms),
+            action="finished",
+            content=get_text("wait_action_content_completed", duration_ms),
+        )
+
+    elif action_type == "ai_action":
+        # 处理AI动作
+        prompt = action_dict.get("prompt", "")
+
+        if is_cli_mode:
+            # CLI模式：直接使用agent.run
+            return agent.run(
+                prompt,
+                stream_resp_callback=stream_resp_callback,
+                include_history=include_history,
+                debug=debug,
+            )
+        else:
+            # GUI模式：使用TestRunner逻辑
+            test_runner = TestRunner(agent)
+            return test_runner.run_step(
+                prompt,
+                screenshot_callback=screenshot_callback,
+                preaction_callback=preaction_callback,
+                postaction_callback=postaction_callback,
+                stream_resp_callback=stream_resp_callback,
+            )
+
+    else:
+        # 未知动作类型
+        error_msg = get_text("unsupported_action_type", action_type)
+        return ActionOutput(thought=error_msg, action="error", content=error_msg)
+
+
 def run_testcases(
-    testcase_prompts: List[Union[str, Dict[str, Any]]],
+    testcase_prompts: List[Dict[str, Any]],
     screenshot_callback: Optional[Callable[[bytes], None]] = None,
     preaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
     postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
@@ -262,49 +411,29 @@ def run_testcases(
         try:
             cur_action = testcase_prompts[prompt_idx]
 
-            # 处理sleep动作
-            if isinstance(cur_action, dict) and cur_action.get("type") == "sleep":
-                duration_ms = cur_action.get("duration", 1000)
-                duration_seconds = duration_ms / 1000.0
+            # 提取动作信息
+            action_type = cur_action.get("type", "ai_action")
+            continue_on_error = cur_action.get("continueOnError", False)
+            task_name = cur_action.get("taskName", get_text("step_number", prompt_idx + 1))
 
-                if is_cli_mode:
-                    print(
-                        get_text("starting_sleep_action", prompt_idx + 1, duration_ms)
-                    )
-
-                time.sleep(duration_seconds)
-
-                if is_cli_mode:
-                    print(get_text("sleep_action_completed", prompt_idx + 1))
-
-                prompt_idx += 1
-                continue
-
-            # 处理AI动作
-            cur_action_prompt = str(cur_action)
-
-            # CLI模式输出任务开始信息
-            if is_cli_mode:
+            # 使用统一的动作执行函数
+            if is_cli_mode and action_type == "ai_action":
+                # CLI模式下AI动作需要特殊的提示输出
+                cur_action_prompt = cur_action["prompt"]
                 print(get_text("starting_task", prompt_idx + 1, cur_action_prompt))
 
-            # 根据模式选择执行方法
-            if is_cli_mode:
-                # CLI模式：直接使用agent.run，保持原有CLI行为
-                result = agent.run(
-                    cur_action_prompt,
-                    stream_resp_callback=stream_resp_callback,
-                    include_history=include_history,
-                    debug=debug,
-                )
-            else:
-                # GUI模式：使用test_runner.run_step，支持更多回调
-                result = test_runner.run_step(
-                    cur_action_prompt,
-                    screenshot_callback=screenshot_callback,
-                    preaction_callback=preaction_callback,
-                    postaction_callback=postaction_callback,
-                    stream_resp_callback=stream_resp_callback,
-                )
+            # 执行动作
+            result = execute_unified_action(
+                cur_action,
+                agent,
+                screenshot_callback=screenshot_callback,
+                preaction_callback=preaction_callback,
+                postaction_callback=postaction_callback,
+                stream_resp_callback=stream_resp_callback,
+                include_history=include_history,
+                debug=debug,
+                is_cli_mode=is_cli_mode,
+            )
 
             # 检查执行结果
             if result.is_finished():
@@ -316,7 +445,7 @@ def run_testcases(
                     print(get_text("task_not_completed", prompt_idx + 1))
                     prompt_idx += 1
                 else:
-                    logger.warning(f"步骤 {prompt_idx + 1} 未完成")
+                    logger.warning(get_text("step_not_completed_warning", prompt_idx + 1))
                     prompt_idx += 1
 
         except KeyboardInterrupt:
@@ -324,16 +453,29 @@ def run_testcases(
                 print(get_text("user_interrupted"))
                 sys.exit(0)
             else:
-                logger.info("用户中断执行")
+                logger.info(get_text("user_interrupted_execution"))
                 raise
         except Exception as e:
-            error_msg = f"执行步骤 {prompt_idx + 1} 时出错: {e}"
-            if is_cli_mode:
-                print(get_text("execution_error", e))
-                break
+            error_msg = get_text("step_execution_error", prompt_idx + 1, e)
+
+            # 检查是否应该继续执行
+            should_continue = cur_action.get("continueOnError", False)
+
+            if should_continue:
+                if is_cli_mode:
+                    print(get_text("execution_error", e))
+                    print(get_text("continue_on_error_message"))
+                else:
+                    logger.error(error_msg)
+                    logger.info(get_text("continue_on_error_message"))
+                prompt_idx += 1
             else:
-                logger.error(error_msg)
-                raise
+                if is_cli_mode:
+                    print(get_text("execution_error", e))
+                    break
+                else:
+                    logger.error(error_msg)
+                    raise
 
     # CLI模式的完成输出
     if is_cli_mode:
@@ -365,7 +507,7 @@ def execute_single_step(
 
 
 def run_testcases_for_gui(
-    testcase_prompts: List[Union[str, Dict[str, Any]]],
+    testcase_prompts: List[Dict[str, Any]],
     screenshot_callback: Optional[Callable[[bytes], None]] = None,
     preaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
     postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
@@ -464,8 +606,16 @@ def main() -> None:
     # 确定测试用例来源
     device_id_from_config = None
     if args.command:
-        # 使用命令行指定的命令
-        testcase_prompts = args.command
+        # 使用命令行指定的命令，转换为统一格式
+        testcase_prompts = [
+            {
+                "type": "ai_action",
+                "prompt": cmd,
+                "continueOnError": False,
+                "taskName": get_text("command_number", i+1),
+            }
+            for i, cmd in enumerate(args.command)
+        ]
         print(get_text("using_cli_commands", len(testcase_prompts)))
     elif args.testcase:
         # 使用指定的测试用例文件
@@ -477,8 +627,17 @@ def main() -> None:
                 get_text("loaded_from_yaml_file", len(testcase_prompts), args.testcase)
             )
         else:
-            # JSON测试用例文件
-            testcase_prompts = load_testcase_from_file(args.testcase)
+            # JSON测试用例文件，转换为统一格式
+            json_testcases = load_testcase_from_file(args.testcase)
+            testcase_prompts = [
+                {
+                    "type": "ai_action",
+                    "prompt": tc,
+                    "continueOnError": False,
+                    "taskName": get_text("step_number", i+1),
+                }
+                for i, tc in enumerate(json_testcases)
+            ]
             print(get_text("loaded_from_file", args.testcase, len(testcase_prompts)))
     else:
         # 尝试使用默认文件（优先YAML）
@@ -494,7 +653,16 @@ def main() -> None:
                 )
             )
         elif os.path.exists(default_json_file):
-            testcase_prompts = load_testcase_from_file(default_json_file)
+            json_testcases = load_testcase_from_file(default_json_file)
+            testcase_prompts = [
+                {
+                    "type": "ai_action",
+                    "prompt": tc,
+                    "continueOnError": False,
+                    "taskName": get_text("step_number", i+1),
+                }
+                for i, tc in enumerate(json_testcases)
+            ]
             print(
                 get_text(
                     "loaded_from_default", default_json_file, len(testcase_prompts)

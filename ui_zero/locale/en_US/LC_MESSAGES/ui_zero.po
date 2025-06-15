@@ -274,6 +274,75 @@ msgstr "==> Step [{}]: Sleep {} milliseconds <=="
 msgid "sleep_action_completed"
 msgstr "Step [{}] sleep completed."
 
+msgid "sleeping_for_ms"
+msgstr "Sleeping for {} milliseconds..."
+
+msgid "waiting_for_ms"
+msgstr "Waiting for {} milliseconds..."
+
+msgid "starting_wait_action"
+msgstr "==> Step [{}]: Wait {} milliseconds <=="
+
+msgid "wait_action_completed"
+msgstr "Step [{}] wait completed."
+
+msgid "continue_on_error_message"
+msgstr "Continuing to next step (continueOnError=true)"
+
+msgid "arkmodel_run_not_implemented"
+msgstr "The run method should be implemented in subclasses"
+
+msgid "point_conversion_invalid_format"
+msgstr "Input parameter format should be: point=[x,y], img_size=(width,height)"
+
+msgid "image_file_not_found"
+msgstr "Image file not found: {}"
+
+msgid "image_input_invalid_type"
+msgstr "Image input must be a file path string or bytes"
+
+msgid "failed_to_get_screen_size"
+msgstr "Failed to get screen size, output: {}"
+
+msgid "wait_callback_description"
+msgstr "Wait {}ms"
+
+msgid "wait_action_thought_completed"
+msgstr "Wait action completed: {} milliseconds"
+
+msgid "wait_action_content_completed"
+msgstr "Wait {}ms completed"
+
+msgid "execute_wait_action_thought"
+msgstr "Execute wait action: {} milliseconds"
+
+msgid "unsupported_action_type"
+msgstr "Unsupported action type: {}"
+
+msgid "ai_wait_for_condition"
+msgstr "Wait for condition: {}"
+
+msgid "ai_assert_condition"
+msgstr "Verify: {}"
+
+msgid "step_not_completed_warning"
+msgstr "Step {} not completed"
+
+msgid "user_interrupted_execution"
+msgstr "User interrupted execution"
+
+msgid "step_execution_error"
+msgstr "Error executing step {}: {}"
+
+msgid "unnamed_task"
+msgstr "Unnamed task"
+
+msgid "step_number"
+msgstr "Step {}"
+
+msgid "command_number"
+msgstr "Command {}"
+
 msgid "tapped_center"
 msgstr "Tapped screen center point ({}, {})"
 

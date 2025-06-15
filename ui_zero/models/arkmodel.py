@@ -3,6 +3,7 @@ from openai import OpenAI
 from pathlib import Path
 import base64
 from typing import Optional
+from ..localization import get_text
 
 
 class ArkModel:
@@ -25,4 +26,4 @@ class ArkModel:
         return f"ArkModel: {self.model_name}\nAPI Key: {self.api_key[:8] if self.api_key else None}...\nBase URL: {self.base_url}"
 
     def run(self, user_prompt: str, image: Optional[str] = None):
-        raise NotImplementedError("The run method should be implemented in subclasses.")
+        raise NotImplementedError(get_text("arkmodel_run_not_implemented"))

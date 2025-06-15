@@ -5,11 +5,8 @@ tasks:
   - name: <name>
     continueOnError: <boolean> # 可选，错误时是否继续执行下一个任务，默认 false
     flow:
-      # 执行一个交互，`ai` 是 `aiAction` 的简写方式
+      # 执行一个交互指令
       - ai: <prompt>
-
-      # 这种用法与 `ai` 相同
-      - aiAction: <prompt>
 
       # 等待某个条件满足，并设置超时时间(ms，可选，默认 30000)
       - aiWaitFor: <prompt>
@@ -20,7 +17,16 @@ tasks:
         errorMessage: <error-message> # 可选，当断言失败时打印的错误信息。
 
       # 等待一定时间（毫秒）
+      - wait: <ms>
+      
+      # 兼容性：sleep 会自动转换为 wait
       - sleep: <ms>
+
+  # 示例：即使此任务失败也继续执行后续任务
+  - name: <name>
+    continueOnError: true
+    flow:
+      - ai: <prompt>
 
   - name: <name>
     flow:

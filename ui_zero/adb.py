@@ -327,7 +327,7 @@ class ADBTool:
             dimensions = size_str.split("Physical size:")[1].strip().split("x")
             return int(dimensions[0]), int(dimensions[1])
         else:
-            raise RuntimeError(f"无法获取屏幕尺寸，输出: {size_str}")
+            raise RuntimeError(get_text("failed_to_get_screen_size", size_str))
 
     def is_screen_on(self) -> bool:
         """
