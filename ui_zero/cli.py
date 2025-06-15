@@ -56,7 +56,7 @@ def list_available_devices() -> List[str]:
         return []
 
 
-class TestRunner:
+class StepRunner:
     """测试运行器，用于执行测试用例"""
 
     def __init__(self, agent: AndroidAgent):
@@ -329,8 +329,8 @@ def execute_unified_action(
                 debug=debug,
             )
         else:
-            # GUI模式：使用TestRunner逻辑
-            test_runner = TestRunner(agent)
+            # GUI模式：使用StepRunner逻辑
+            test_runner = StepRunner(agent)
             return test_runner.run_step(
                 prompt,
                 screenshot_callback=screenshot_callback,
@@ -372,7 +372,7 @@ def run_testcases(
     """
     adb_tool = ADBTool(device_id=device_id) if device_id else ADBTool()
     agent = AndroidAgent(adb=adb_tool)
-    test_runner = TestRunner(agent)
+    test_runner = StepRunner(agent)
 
     # CLI模式的初始化输出
     if is_cli_mode:
@@ -496,7 +496,7 @@ def execute_single_step(
         adb_tool = ADBTool(device_id=device_id) if device_id else ADBTool()
         agent = AndroidAgent(adb=adb_tool)
 
-    test_runner = TestRunner(agent)
+    test_runner = StepRunner(agent)
     return test_runner.run_step(
         step,
         screenshot_callback=screenshot_callback,

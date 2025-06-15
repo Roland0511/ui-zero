@@ -27,7 +27,7 @@ from ui_zero.cli import (
     execute_wait_action,
     execute_unified_action,
     run_testcases,
-    TestRunner,
+    StepRunner,
     execute_single_step,
     run_testcases_for_gui,
 )
@@ -177,7 +177,19 @@ class TestYamlToTestcases(unittest.TestCase):
             ]
         }
 
-        testcases, device_id = convert_yaml_to_testcases(config)
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            def mock_get_text_func(key, *args):
+                if key == "ai_wait_for_condition":
+                    return f"等待条件满足: {args[0]}"
+                elif key == "ai_assert_condition":
+                    return f"验证: {args[0]}"
+                elif key == "unnamed_task":
+                    return "未命名任务"
+                else:
+                    return f"mocked_{key}"
+            
+            mock_get_text.side_effect = mock_get_text_func
+            testcases, device_id = convert_yaml_to_testcases(config)
 
         self.assertEqual(device_id, "test_device")
         self.assertEqual(len(testcases), 6)
@@ -275,7 +287,19 @@ class TestYamlToTestcases(unittest.TestCase):
             ]
         }
 
-        testcases, device_id = convert_yaml_to_testcases(config)
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            def mock_get_text_func(key, *args):
+                if key == "ai_wait_for_condition":
+                    return f"等待条件满足: {args[0]}"
+                elif key == "ai_assert_condition":
+                    return f"验证: {args[0]}"
+                elif key == "unnamed_task":
+                    return "未命名任务"
+                else:
+                    return f"mocked_{key}"
+            
+            mock_get_text.side_effect = mock_get_text_func
+            testcases, device_id = convert_yaml_to_testcases(config)
 
         # 应该跳过无效任务，只处理有效任务
         self.assertEqual(len(testcases), 1)
@@ -323,7 +347,23 @@ class TestUnifiedActionExecution(unittest.TestCase):
         with patch('ui_zero.cli.get_text') as mock_get_text, \
              patch('ui_zero.cli.take_action') as mock_take_action:
             
-            mock_get_text.side_effect = lambda key, *args: f"mocked_{key}_{args}"
+            def mock_get_text_func(key, *args):
+                if key == "starting_wait_action":
+                    return f"==> 执行步骤 [{args[0]}]: 等待 {args[1]} 毫秒 <=="
+                elif key == "wait_action_completed":
+                    return f"步骤 [{args[0]}] 等待完成。"
+                elif key == "wait_action_content_completed":
+                    return f"等待 {args[0]}ms 完成"
+                elif key == "wait_action_thought_completed":
+                    return f"等待动作完成: {args[0]}毫秒"
+                elif key == "wait_callback_description":
+                    return f"等待 {args[0]}ms"
+                elif key == "execute_wait_action_thought":
+                    return f"执行等待动作: {args[0]}毫秒"
+                else:
+                    return f"mocked_{key}_{args}"
+            
+            mock_get_text.side_effect = mock_get_text_func
 
             result = execute_unified_action(
                 action_dict,
@@ -338,7 +378,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
 
             # 验证调用
             mock_take_action.assert_called_once()
-            self.assertEqual(len(mock_get_text.call_args_list), 2)  # starting和completed消息
+            self.assertEqual(len(mock_get_text.call_args_list), 5)  # 5个get_text调用
 
     def test_execute_unified_action_wait_gui_mode(self):
         """测试GUI模式下的等待动作执行"""
@@ -376,7 +416,27 @@ class TestUnifiedActionExecution(unittest.TestCase):
             # 不指定duration
         }
 
-        with patch('ui_zero.cli.take_action'):
+        with patch('ui_zero.cli.take_action'), \
+             patch('ui_zero.cli.get_text') as mock_get_text:
+            
+            def mock_get_text_func(key, *args):
+                if key == "starting_wait_action":
+                    return f"==> 执行步骤 [{args[0]}]: 等待 {args[1]} 毫秒 <=="
+                elif key == "wait_action_completed":
+                    return f"步骤 [{args[0]}] 等待完成。"
+                elif key == "wait_action_content_completed":
+                    return f"等待 {args[0]}ms 完成"
+                elif key == "wait_action_thought_completed":
+                    return f"等待动作完成: {args[0]}毫秒"
+                elif key == "wait_callback_description":
+                    return f"等待 {args[0]}ms"
+                elif key == "execute_wait_action_thought":
+                    return f"执行等待动作: {args[0]}毫秒"
+                else:
+                    return f"mocked_{key}_{args}"
+            
+            mock_get_text.side_effect = mock_get_text_func
+
             result = execute_unified_action(
                 action_dict,
                 self.mock_agent,
@@ -431,7 +491,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
         mock_postaction_callback = Mock()
         mock_stream_callback = Mock()
 
-        with patch('ui_zero.cli.TestRunner') as mock_test_runner_class:
+        with patch('ui_zero.cli.StepRunner') as mock_test_runner_class:
             mock_test_runner = Mock()
             mock_test_runner.run_step.return_value = mock_result
             mock_test_runner_class.return_value = mock_test_runner
@@ -446,7 +506,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
                 is_cli_mode=False
             )
 
-            # 验证TestRunner被创建和调用
+            # 验证StepRunner被创建和调用
             mock_test_runner_class.assert_called_once_with(self.mock_agent)
             mock_test_runner.run_step.assert_called_once_with(
                 "test prompt",
@@ -465,26 +525,31 @@ class TestUnifiedActionExecution(unittest.TestCase):
             "taskName": "test_unknown"
         }
 
-        result = execute_unified_action(
-            action_dict,
-            self.mock_agent,
-            is_cli_mode=True
-        )
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            mock_get_text.side_effect = lambda key, *args: {
+                "unsupported_action_type": f"不支持的动作类型: {args[0]}"
+            }.get(key, f"mocked_{key}")
 
-        self.assertEqual(result.action, "error")
-        self.assertIn("不支持的动作类型", result.content)
+            result = execute_unified_action(
+                action_dict,
+                self.mock_agent,
+                is_cli_mode=True
+            )
+
+            self.assertEqual(result.action, "error")
+            self.assertIn("不支持的动作类型", result.content)
 
 
-class TestTestRunner(unittest.TestCase):
-    """TestRunner类测试"""
+class TestStepRunner(unittest.TestCase):
+    """StepRunner类测试"""
 
     def setUp(self):
         """测试前准备"""
         self.mock_agent = Mock(spec=AndroidAgent)
-        self.test_runner = TestRunner(self.mock_agent)
+        self.test_runner = StepRunner(self.mock_agent)
 
-    def test_test_runner_init(self):
-        """测试TestRunner初始化"""
+    def test_step_runner_init(self):
+        """测试StepRunner初始化"""
         self.assertEqual(self.test_runner.agent, self.mock_agent)
 
     def test_run_step_success(self):
@@ -555,7 +620,7 @@ class TestRunTestcases(unittest.TestCase):
 
     @patch('ui_zero.cli.ADBTool')
     @patch('ui_zero.cli.AndroidAgent')
-    @patch('ui_zero.cli.TestRunner')
+    @patch('ui_zero.cli.StepRunner')
     @patch('ui_zero.cli.execute_unified_action')
     def test_run_testcases_cli_mode(self, mock_execute_unified, mock_test_runner_class, 
                                    mock_agent_class, mock_adb_class):
@@ -715,7 +780,7 @@ class TestExecuteSingleStep(unittest.TestCase):
 
     @patch('ui_zero.cli.ADBTool')
     @patch('ui_zero.cli.AndroidAgent')
-    @patch('ui_zero.cli.TestRunner')
+    @patch('ui_zero.cli.StepRunner')
     def test_execute_single_step_with_agent(self, mock_test_runner_class, 
                                           mock_agent_class, mock_adb_class):
         """测试使用提供的agent执行单步"""
@@ -737,7 +802,7 @@ class TestExecuteSingleStep(unittest.TestCase):
 
     @patch('ui_zero.cli.ADBTool')
     @patch('ui_zero.cli.AndroidAgent')
-    @patch('ui_zero.cli.TestRunner')
+    @patch('ui_zero.cli.StepRunner')
     def test_execute_single_step_without_agent(self, mock_test_runner_class, 
                                              mock_agent_class, mock_adb_class):
         """测试不提供agent时自动创建"""

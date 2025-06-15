@@ -75,7 +75,19 @@ class TestCLIIntegration(unittest.TestCase):
         self.assertEqual(loaded_config, test_config)
 
         # 步骤2: 转换为测试用例
-        testcases, device_id = convert_yaml_to_testcases(loaded_config)
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            def mock_get_text_func(key, *args):
+                if key == "ai_wait_for_condition":
+                    return f"等待条件满足: {args[0]}"
+                elif key == "ai_assert_condition":
+                    return f"验证: {args[0]}"
+                elif key == "unnamed_task":
+                    return "未命名任务"
+                else:
+                    return f"mocked_{key}"
+            
+            mock_get_text.side_effect = mock_get_text_func
+            testcases, device_id = convert_yaml_to_testcases(loaded_config)
 
         # 验证设备ID
         self.assertEqual(device_id, "test_device_123")
@@ -123,7 +135,23 @@ class TestCLIIntegration(unittest.TestCase):
         with patch('ui_zero.cli.take_action') as mock_take_action, \
              patch('ui_zero.cli.get_text') as mock_get_text:
             
-            mock_get_text.side_effect = lambda key, *args: f"mocked_{key}"
+            def mock_get_text_func(key, *args):
+                if key == "starting_wait_action":
+                    return f"==> 执行步骤 [{args[0]}]: 等待 {args[1]} 毫秒 <=="
+                elif key == "wait_action_completed":
+                    return f"步骤 [{args[0]}] 等待完成。"
+                elif key == "wait_action_content_completed":
+                    return f"等待 {args[0]}ms 完成"
+                elif key == "wait_action_thought_completed":
+                    return f"等待动作完成: {args[0]}毫秒"
+                elif key == "wait_callback_description":
+                    return f"等待 {args[0]}ms"
+                elif key == "execute_wait_action_thought":
+                    return f"执行等待动作: {args[0]}毫秒"
+                else:
+                    return f"mocked_{key}"
+            
+            mock_get_text.side_effect = mock_get_text_func
 
             result = execute_unified_action(
                 wait_action,
