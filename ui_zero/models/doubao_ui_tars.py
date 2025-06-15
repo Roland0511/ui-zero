@@ -165,6 +165,10 @@ class ActionOutput:
         """检查是否为按下返回键动作"""
         return self.action == "press_back"
 
+    def is_press_power_action(self):
+        """检查是否为按下电源键动作"""
+        return self.action == "press_power"
+
     def is_type_action(self):
         """检查是否为键盘输入动作"""
         return self.action == "type"

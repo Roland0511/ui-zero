@@ -370,7 +370,7 @@ class ADBTool:
 
         Args:
             package_name: 应用包名
-            activity_name: 活动名称，如果为None则只启动包
+            activity_name: activity名称，如果为None则只启动包
         """
         if activity_name:
             self.execute_command(

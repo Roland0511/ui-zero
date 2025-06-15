@@ -131,7 +131,7 @@ msgstr "--------------------------------------------------"
 
 # Argument descriptions
 msgid "arg_testcase_help"
-msgstr "指定测试用例JSON文件路径 (默认: test_case.json)"
+msgstr "指定测试用例文件路径，支持JSON和YAML格式 (默认: test_case.yaml 或 test_case.json)"
 
 msgid "arg_command_help"
 msgstr "指定要执行的测试命令，可以多次使用此参数添加多个命令"
@@ -247,7 +247,32 @@ msgid "screen_always_on_enabled"
 msgstr "已设置屏幕常亮"
 
 msgid "screenshot_saved"
-msgstr "截图已保存到: {}"
+msgstr "截图已保存"
+
+# YAML configuration related
+msgid "yaml_config_format_error"
+msgstr "YAML配置文件格式错误，应为字典类型"
+
+msgid "yaml_config_file_not_found"
+msgstr "YAML配置文件未找到: {}"
+
+msgid "yaml_config_file_parse_error"
+msgstr "YAML配置文件解析错误 {}: {}"
+
+msgid "yaml_config_file_load_error"
+msgstr "YAML配置文件加载错误: {}"
+
+msgid "yaml_config_missing_tasks"
+msgstr "YAML配置文件缺少tasks字段或格式错误"
+
+msgid "loaded_from_yaml_file"
+msgstr "从YAML文件 {} 加载了 {} 个任务"
+
+msgid "starting_sleep_action"
+msgstr "==> 执行步骤 [{}]: 等待 {} 毫秒 <=="
+
+msgid "sleep_action_completed"
+msgstr "步骤 [{}] 等待完成。"
 
 msgid "tapped_center"
 msgstr "已点击屏幕中心点 ({}, {})"
@@ -309,8 +334,9 @@ msgstr "💡 或运行 'uiz --validate-env' 检查当前配置"
 msgid "usage_examples"
 msgstr ""
 "使用示例:\n"
-"  %(prog)s                                      # 使用默认测试用例文件 (test_case.json)\n"
+"  %(prog)s                                      # 使用默认测试用例文件 (test_case.yaml 或 test_case.json)\n"
 "  %(prog)s --testcase my_test.json              # 指定测试用例JSON文件\n"
+"  %(prog)s --testcase my_config.yaml            # 指定测试配置YAML文件\n"
 "  %(prog)s --command \"打开设置\"                    # 指定单个测试命令\n"
 "  %(prog)s --command \"打开设置\" --command \"关闭wifi\"  # 指定多个测试命令\n"
 "  %(prog)s --debug                              # 启用调试模式，显示完整prompt和详细输出\n"

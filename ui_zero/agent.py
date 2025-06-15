@@ -27,6 +27,8 @@ def take_action(adb: ADBTool, output: ActionOutput):
         adb.press_back()
     elif output.is_press_home_action():
         adb.press_home()
+    elif output.is_press_power_action():
+        adb.press_power()
     elif output.is_wait_action():
         wait_time = 2  # Default wait time
         print(get_text("waiting_seconds", wait_time))
@@ -86,55 +88,62 @@ class AndroidAgent:
     ) -> ActionOutput:
         """Run the agent with the given prompt."""
         # print(f"Running agent with prompt: {prompt}")
-        output = None
-        history = []  # 存储历史执行记录
-        current_iter = 0
+        try:
+            self.adb.set_screen_always_on(True)
+            output = None
+            history = []  # 存储历史执行记录
+            current_iter = 0
 
-        while max_iters > 0:
-            current_iter += 1
+            while max_iters > 0:
+                current_iter += 1
 
-            # Take a screenshot
-            img_bytes = self.adb.take_screenshot_to_bytes()
-            if screenshot_callback:
-                screenshot_callback(img_bytes)
+                # Take a screenshot
+                img_bytes = self.adb.take_screenshot_to_bytes()
+                if screenshot_callback:
+                    screenshot_callback(img_bytes)
 
-            # 构建包含历史信息的prompt
-            if include_history:
-                full_prompt = self._build_prompt_with_history(prompt, history)
-            else:
-                full_prompt = prompt
+                # 构建包含历史信息的prompt
+                if include_history:
+                    full_prompt = self._build_prompt_with_history(prompt, history)
+                else:
+                    full_prompt = prompt
 
-            if debug:
-                print(get_text("debug_full_prompt", current_iter))
-                print(get_text("prompt_separator"))
-                print(full_prompt)
-                print(get_text("prompt_separator"))
+                if debug:
+                    print(get_text("debug_full_prompt", current_iter))
+                    print(get_text("prompt_separator"))
+                    print(full_prompt)
+                    print(get_text("prompt_separator"))
 
-            # Run the model
-            output = self.model.run(
-                full_prompt,
-                img_bytes,
-                stream_resp_callback=stream_resp_callback,
-                debug=debug,
-            )
+                # Run the model
+                output = self.model.run(
+                    full_prompt,
+                    img_bytes,
+                    stream_resp_callback=stream_resp_callback,
+                    debug=debug,
+                )
 
-            # 将当前步骤添加到历史记录中
-            history.append((prompt, output))
+                # 将当前步骤添加到历史记录中
+                history.append((prompt, output))
 
-            if preaction_callback:
-                preaction_callback(prompt, output)
+                if preaction_callback:
+                    preaction_callback(prompt, output)
 
-            # Take action based on the output
-            if output.is_finished():
-                # print(f"Action finished: {output}")
-                break
+                # Take action based on the output
+                if output.is_finished():
+                    # print(f"Action finished: {output}")
+                    break
 
-            take_action(self.adb, output)
-            if postaction_callback:
-                postaction_callback(prompt, output)
-            max_iters -= 1
+                take_action(self.adb, output)
+                if postaction_callback:
+                    postaction_callback(prompt, output)
+                max_iters -= 1
+                # sleep to allow the action to take effect
+                time.sleep(0.3)
 
-        return output or ActionOutput(action="wait", content="No action taken")
+            return output or ActionOutput(action="wait", content="No action taken")
+        except Exception as e:
+            self.adb.set_screen_always_on(False)
+            raise e
 
 
 if __name__ == "__main__":

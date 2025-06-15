@@ -28,6 +28,7 @@ dependencies = [
     "openai>=1.86.0",
     "pillow>=11.2.1",
     "python-dotenv>=1.1.0",
+    "pyyaml>=6.0.0",
 ]
 
 [project.urls]
@@ -48,6 +49,7 @@ dev = [
     "flake8>=6.0.0",
     "mypy>=1.0.0",
     "polib>=1.2.0",
+    "types-pyyaml>=6.0.12.20250516",
 ]
 
 [build-system]

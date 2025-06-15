@@ -131,7 +131,7 @@ msgstr "--------------------------------------------------"
 
 # Argument descriptions
 msgid "arg_testcase_help"
-msgstr "Specify test case JSON file path (default: test_case.json)"
+msgstr "Specify test case file path, supports JSON and YAML formats (default: test_case.yaml or test_case.json)"
 
 msgid "arg_command_help"
 msgstr "Specify test command to execute, can use this parameter multiple times to add multiple commands"
@@ -249,6 +249,31 @@ msgstr "Screen always-on enabled"
 msgid "screenshot_saved"
 msgstr "Screenshot saved to: {}"
 
+# YAML configuration related
+msgid "yaml_config_format_error"
+msgstr "YAML config file format error, should be a dictionary"
+
+msgid "yaml_config_file_not_found"
+msgstr "YAML config file not found: {}"
+
+msgid "yaml_config_file_parse_error"
+msgstr "YAML config file parse error {}: {}"
+
+msgid "yaml_config_file_load_error"
+msgstr "YAML config file load error: {}"
+
+msgid "yaml_config_missing_tasks"
+msgstr "YAML config file missing tasks field or format error"
+
+msgid "loaded_from_yaml_file"
+msgstr "Loaded {} tasks from YAML file {}"
+
+msgid "starting_sleep_action"
+msgstr "==> Step [{}]: Sleep {} milliseconds <=="
+
+msgid "sleep_action_completed"
+msgstr "Step [{}] sleep completed."
+
 msgid "tapped_center"
 msgstr "Tapped screen center point ({}, {})"
 
@@ -309,8 +334,9 @@ msgstr "💡 Or run 'uiz --validate-env' to check current configuration"
 msgid "usage_examples"
 msgstr ""
 "USAGE EXAMPLES:\n"
-"  %(prog)s                                      # Use default test case file (test_case.json)\n"
+"  %(prog)s                                      # Use default test case file (test_case.yaml or test_case.json)\n"
 "  %(prog)s --testcase my_test.json              # Specify a test case JSON file\n"
+"  %(prog)s --testcase my_config.yaml            # Specify a test configuration YAML file\n"
 "  %(prog)s --command \"open settings\"            # Specify a single test command\n"
 "  %(prog)s --command \"open settings\" --command \"close wifi\"  # Specify multiple test commands\n"
 "  %(prog)s --debug                              # Enable debug mode to show full prompts and detailed output\n"
