@@ -311,19 +311,30 @@ class TestActionExecution(unittest.TestCase):
 
     def test_execute_wait_action(self):
         """测试等待动作执行"""
-        result = execute_wait_action(1500, "test_task")
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            mock_get_text.side_effect = lambda key, *args: {
+                "execute_wait_action_thought": f"执行等待动作: {args[0]}毫秒"
+            }.get(key, f"mocked_{key}")
+            
+            result = execute_wait_action(1500, "test_task")
 
-        self.assertIsInstance(result, ActionOutput)
-        self.assertEqual(result.action, "wait")
-        self.assertEqual(result.content, "1500")
-        self.assertEqual(result.thought, "执行等待动作: 1500毫秒")
+            self.assertIsInstance(result, ActionOutput)
+            self.assertEqual(result.action, "wait")
+            self.assertEqual(result.content, "1500")
+            self.assertEqual(result.thought, "执行等待动作: 1500毫秒")
 
     def test_execute_wait_action_default_task_name(self):
         """测试等待动作执行（默认任务名）"""
-        result = execute_wait_action(2000)
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            mock_get_text.side_effect = lambda key, *args: {
+                "execute_wait_action_thought": f"执行等待动作: {args[0]}毫秒"
+            }.get(key, f"mocked_{key}")
+            
+            result = execute_wait_action(2000)
 
-        self.assertEqual(result.action, "wait")
-        self.assertEqual(result.content, "2000")
+            self.assertEqual(result.action, "wait")
+            self.assertEqual(result.content, "2000")
+            self.assertEqual(result.thought, "执行等待动作: 2000毫秒")
 
 
 class TestUnifiedActionExecution(unittest.TestCase):
