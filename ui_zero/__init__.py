@@ -6,7 +6,7 @@ from .agent import AndroidAgent, ActionOutput
 from .adb import ADBTool
 from .models import DoubaoUITarsModel, ArkModel
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "lizhou.zhu"
 __description__ = "AI-powered UI automation testing library"
 
