@@ -433,3 +433,31 @@ msgstr "⚠️ Multiple devices detected, automatically selected the first devic
 
 msgid "recommend_specify_device"
 msgstr "💡 Recommend using --device parameter to specify device ID to avoid ambiguity"
+
+# Assert action related
+msgid "starting_assert_action"
+msgstr "Starting assert task【{}】: {}"
+
+msgid "ai_assert_prompt"
+msgstr "Please determine if the following condition is true: {}. If the condition is true, return Action: finished(content='Assert is true'); if the condition is false, return Action: finished(content='Assert is false'). Please judge based only on the current screen content."
+
+msgid "assert_passed"
+msgstr "✅ Assert task【{}】passed"
+
+msgid "assert_failed"
+msgstr "❌ Assert task【{}】failed"
+
+msgid "assert_true_thought"
+msgstr "Assert condition '{}' is true"
+
+msgid "assert_true_content"
+msgstr "Assert passed"
+
+msgid "assert_false_thought_continue"
+msgstr "Assert condition '{}' is false, but configured to continue execution"
+
+msgid "assert_false_content"
+msgstr "Assert failed but continuing execution"
+
+msgid "assert_failed_error"
+msgstr "Assert failed: {}"

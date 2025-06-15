@@ -210,8 +210,8 @@ def convert_yaml_to_testcases(
                 # error_msg = action.get("errorMessage", "断言失败")
                 testcases.append(
                     {
-                        "type": "ai_action",
-                        "prompt": get_text("ai_assert_condition", assert_prompt),
+                        "type": "ai_assert",
+                        "prompt": assert_prompt,
                         "continueOnError": continue_on_error,
                         "taskName": task_name,
                     }
@@ -297,14 +297,18 @@ def execute_unified_action(
 
         # 执行动作前回调
         if preaction_callback:
-            preaction_callback(get_text("wait_callback_description", duration_ms), wait_output)
+            preaction_callback(
+                get_text("wait_callback_description", duration_ms), wait_output
+            )
 
         # 执行等待动作
         take_action(agent.adb, wait_output)
 
         # 执行动作后回调
         if postaction_callback:
-            postaction_callback(get_text("wait_callback_description", duration_ms), wait_output)
+            postaction_callback(
+                get_text("wait_callback_description", duration_ms), wait_output
+            )
 
         if is_cli_mode:
             print(get_text("wait_action_completed", task_name))
@@ -315,6 +319,59 @@ def execute_unified_action(
             action="finished",
             content=get_text("wait_action_content_completed", duration_ms),
         )
+    elif action_type == "ai_assert":
+        # 处理AI断言动作
+        prompt = action_dict.get("prompt", "")
+        continue_on_error = action_dict.get("continueOnError", False)
+
+        if is_cli_mode:
+            print(get_text("starting_assert_action", task_name, prompt))
+
+        # 调用agent.run，要求模型判断prompt中描述的情况是否为真
+        assert_prompt = get_text("ai_assert_prompt", prompt)
+
+        # 执行断言检查
+        result = agent.run(
+            assert_prompt,
+            max_iters=1,  # 断言只需要一次判断
+            screenshot_callback=screenshot_callback,
+            preaction_callback=preaction_callback,
+            postaction_callback=postaction_callback,
+            stream_resp_callback=stream_resp_callback,
+            debug=debug,
+        )
+
+        # 检查断言结果
+        is_assert_true = (
+            result.action == "finished"
+            and result.content
+            and "Assert is true" in result.content
+        )
+
+        if is_assert_true:
+            # 断言为真，继续执行
+            if is_cli_mode:
+                print(get_text("assert_passed", task_name))
+            return ActionOutput(
+                thought=get_text("assert_true_thought", prompt),
+                action="finished",
+                content=get_text("assert_true_content"),
+            )
+        else:
+            # 断言为假
+            if is_cli_mode:
+                print(get_text("assert_failed", task_name))
+
+            # 根据continueOnError决定是否抛出异常
+            if continue_on_error:
+                return ActionOutput(
+                    thought=get_text("assert_false_thought_continue", prompt),
+                    action="finished",
+                    content=get_text("assert_false_content"),
+                )
+            else:
+                # 抛出异常中断执行
+                raise RuntimeError(get_text("assert_failed_error", prompt))
 
     elif action_type == "ai_action":
         # 处理AI动作
@@ -414,7 +471,9 @@ def run_testcases(
             # 提取动作信息
             action_type = cur_action.get("type", "ai_action")
             continue_on_error = cur_action.get("continueOnError", False)
-            task_name = cur_action.get("taskName", get_text("step_number", prompt_idx + 1))
+            task_name = cur_action.get(
+                "taskName", get_text("step_number", prompt_idx + 1)
+            )
 
             # 使用统一的动作执行函数
             if is_cli_mode and action_type == "ai_action":
@@ -445,7 +504,9 @@ def run_testcases(
                     print(get_text("task_not_completed", prompt_idx + 1))
                     prompt_idx += 1
                 else:
-                    logger.warning(get_text("step_not_completed_warning", prompt_idx + 1))
+                    logger.warning(
+                        get_text("step_not_completed_warning", prompt_idx + 1)
+                    )
                     prompt_idx += 1
 
         except KeyboardInterrupt:
@@ -612,7 +673,7 @@ def main() -> None:
                 "type": "ai_action",
                 "prompt": cmd,
                 "continueOnError": False,
-                "taskName": get_text("command_number", i+1),
+                "taskName": get_text("command_number", i + 1),
             }
             for i, cmd in enumerate(args.command)
         ]
@@ -634,7 +695,7 @@ def main() -> None:
                     "type": "ai_action",
                     "prompt": tc,
                     "continueOnError": False,
-                    "taskName": get_text("step_number", i+1),
+                    "taskName": get_text("step_number", i + 1),
                 }
                 for i, tc in enumerate(json_testcases)
             ]
@@ -659,7 +720,7 @@ def main() -> None:
                     "type": "ai_action",
                     "prompt": tc,
                     "continueOnError": False,
-                    "taskName": get_text("step_number", i+1),
+                    "taskName": get_text("step_number", i + 1),
                 }
                 for i, tc in enumerate(json_testcases)
             ]

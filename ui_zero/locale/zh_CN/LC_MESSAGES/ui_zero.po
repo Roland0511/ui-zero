@@ -433,3 +433,31 @@ msgstr "⚠️ 检测到多个设备，自动选择第一个设备: {}"
 
 msgid "recommend_specify_device"
 msgstr "💡 建议使用 --device 参数指定设备ID以避免歧义"
+
+# Assert action related
+msgid "starting_assert_action"
+msgstr "开始执行断言任务【{}】: {}"
+
+msgid "ai_assert_prompt"
+msgstr "请判断以下条件是否为真: {}。如果条件为真，请返回 Action: finished(content='Assert is true')；如果条件为假，请返回 Action: finished(content='Assert is false')。请只根据当前屏幕内容进行判断。"
+
+msgid "assert_passed"
+msgstr "✅ 断言任务【{}】通过"
+
+msgid "assert_failed"
+msgstr "❌ 断言任务【{}】失败"
+
+msgid "assert_true_thought"
+msgstr "断言条件 '{}' 为真"
+
+msgid "assert_true_content"
+msgstr "断言通过"
+
+msgid "assert_false_thought_continue"
+msgstr "断言条件 '{}' 为假，但配置为继续执行"
+
+msgid "assert_false_content"
+msgstr "断言失败但继续执行"
+
+msgid "assert_failed_error"
+msgstr "断言失败: {}"
