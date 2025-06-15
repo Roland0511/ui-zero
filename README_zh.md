@@ -211,6 +211,7 @@ ui_zero/
 
 ## 测试用例格式
 
+### JSON格式
 创建`test_case.json`文件：
 
 ```json
@@ -221,6 +222,41 @@ ui_zero/
     "返回上一页"
 ]
 ```
+
+### YAML格式（推荐）
+创建`test_case.yaml`文件以支持更高级的测试场景：
+
+```yaml
+android:
+  # 设备 ID，可选，默认使用第一个连接的设备
+  deviceId: <device-id>
+tasks:
+  - name: <任务名称>
+    continueOnError: <boolean> # 可选，错误时是否继续执行下一个任务，默认 false
+    flow:
+      # 执行一个交互，`ai` 是 `aiAction` 的简写方式
+      - ai: <prompt>
+
+      # 这种用法与 `ai` 相同
+      - aiAction: <prompt>
+
+      # 等待某个条件满足，并设置超时时间(ms，可选，默认 30000)
+      - aiWaitFor: <prompt>
+        timeout: <ms>
+
+      # 执行一个断言
+      - aiAssert: <prompt>
+        errorMessage: <error-message> # 可选，当断言失败时打印的错误信息
+
+      # 等待一定时间（毫秒）
+      - sleep: <ms>
+
+  - name: <另一个任务名称>
+    flow:
+      # ...
+```
+
+完整示例请参考项目根目录下的 [`test_case.example.yaml`](test_case.example.yaml) 文件。
 
 ## 环境变量
 

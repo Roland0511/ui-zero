@@ -214,6 +214,7 @@ ui_zero/
 
 ## Test Case Format
 
+### JSON Format
 Create a `test_case.json` file:
 
 ```json
@@ -224,6 +225,41 @@ Create a `test_case.json` file:
     "go back"
 ]
 ```
+
+### YAML Format (Recommended)
+Create a `test_case.yaml` file for more advanced test scenarios:
+
+```yaml
+android:
+  # Device ID, optional, defaults to first connected device
+  deviceId: <device-id>
+tasks:
+  - name: <task-name>
+    continueOnError: <boolean> # Optional, whether to continue on error, defaults to false
+    flow:
+      # Execute an interaction, `ai` is shorthand for `aiAction`
+      - ai: <prompt>
+
+      # This usage is the same as `ai`
+      - aiAction: <prompt>
+
+      # Wait for a condition to be met, with timeout (ms, optional, defaults to 30000)
+      - aiWaitFor: <prompt>
+        timeout: <ms>
+
+      # Execute an assertion
+      - aiAssert: <prompt>
+        errorMessage: <error-message> # Optional, error message to print when assertion fails
+
+      # Wait for a certain time (milliseconds)
+      - sleep: <ms>
+
+  - name: <another-task-name>
+    flow:
+      # ...
+```
+
+For complete examples, see [`test_case.example.yaml`](test_case.example.yaml) in the project root.
 
 ## Environment Variables
 
