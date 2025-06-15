@@ -1,0 +1,64 @@
+# GitHub Release Configuration
+# This file configures how GitHub automatically generates release notes
+
+changelog:
+  # Exclude certain labels from appearing in release notes
+  exclude:
+    labels:
+      - "duplicate"
+      - "question"
+      - "invalid"
+      - "wontfix"
+      - "internal"
+      - "dependencies"
+
+  # Configure sections in the release notes
+  categories:
+    - title: "🚀 New Features"
+      labels:
+        - "feature"
+        - "enhancement"
+        - "feat"
+    
+    - title: "🐛 Bug Fixes"
+      labels:
+        - "bug"
+        - "fix"
+        - "bugfix"
+    
+    - title: "💥 Breaking Changes"
+      labels:
+        - "breaking-change"
+        - "breaking"
+    
+    - title: "📚 Documentation"
+      labels:
+        - "documentation"
+        - "docs"
+    
+    - title: "🔒 Security"
+      labels:
+        - "security"
+    
+    - title: "🧪 Testing"
+      labels:
+        - "test"
+        - "testing"
+    
+    - title: "🔧 Maintenance & Internal Changes"
+      labels:
+        - "chore"
+        - "refactor"
+        - "ci"
+        - "build"
+        - "internal"
+    
+    - title: "📦 Dependencies"
+      labels:
+        - "dependencies"
+        - "deps"
+    
+    # Catch-all for other changes
+    - title: "Other Changes"
+      labels:
+        - "*"
