@@ -108,8 +108,8 @@ class TestCLIIntegration(unittest.TestCase):
         self.assertEqual(testcases[2]['prompt'], '等待条件满足: 等待条件')
 
         # 验证第二个任务的动作
-        self.assertEqual(testcases[3]['type'], 'ai_action')
-        self.assertEqual(testcases[3]['prompt'], '验证: 验证条件')
+        self.assertEqual(testcases[3]['type'], 'ai_assert')
+        self.assertEqual(testcases[3]['prompt'], '验证条件')
         self.assertEqual(testcases[3]['taskName'], '测试任务2')
         self.assertEqual(testcases[3]['continueOnError'], True)
 
@@ -236,7 +236,7 @@ class TestCLIIntegration(unittest.TestCase):
         self.assertEqual(len(testcases), 6)
 
         # 验证动作类型
-        expected_types = ['ai_action', 'ai_action', 'wait', 'wait', 'ai_action', 'ai_action']
+        expected_types = ['ai_action', 'ai_action', 'wait', 'wait', 'ai_action', 'ai_assert']
         actual_types = [tc['type'] for tc in testcases]
         self.assertEqual(actual_types, expected_types)
 

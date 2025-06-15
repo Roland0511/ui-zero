@@ -209,8 +209,8 @@ class TestYamlToTestcases(unittest.TestCase):
         self.assertEqual(testcases[2]['prompt'], '等待条件满足: test condition')
 
         # 检查aiAssert动作
-        self.assertEqual(testcases[3]['type'], 'ai_action')
-        self.assertEqual(testcases[3]['prompt'], '验证: test assertion')
+        self.assertEqual(testcases[3]['type'], 'ai_assert')
+        self.assertEqual(testcases[3]['prompt'], 'test assertion')
 
         # 检查sleep动作转换为wait
         self.assertEqual(testcases[4]['type'], 'wait')
