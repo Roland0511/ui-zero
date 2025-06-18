@@ -659,7 +659,7 @@ def main() -> None:
         "--command", "-c", action="append", help=get_text("arg_command_help")
     )
 
-    parser.add_argument("--version", "-v", action="version", version="UI-Zero v0.1.6")
+    parser.add_argument("--version", "-v", action="version", version="UI-Zero v0.1.7")
 
     parser.add_argument(
         "--no-history", action="store_true", help=get_text("arg_no_history_help")
