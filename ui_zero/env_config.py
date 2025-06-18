@@ -9,10 +9,28 @@
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union, Callable, TypedDict, Any, cast
 import dotenv
 from .localization import get_text
 
+
+# 定义类型
+class EnvVarConfig(TypedDict):
+    """环境变量配置类型"""
+    description_key: str
+    example: str
+    validation: Callable[[str], bool]
+
+class InvalidVarInfo(TypedDict):
+    """无效环境变量信息类型"""
+    value: str
+    config: EnvVarConfig
+
+class EnvCheckResult(TypedDict):
+    """环境检查结果类型"""
+    missing: Dict[str, EnvVarConfig]
+    invalid: Dict[str, InvalidVarInfo]
+    valid: bool
 
 class EnvConfig:
     """环境配置管理器"""
@@ -58,7 +76,7 @@ class EnvConfig:
                 f.write(f"{key}={value}\n")
         print(get_text("env_config_saved").format(self.config_file))
 
-    def check_env_vars(self) -> Dict[str, Optional[str]]:
+    def check_env_vars(self) -> EnvCheckResult:
         """检查所有必需的环境变量"""
         missing_vars = {}
         invalid_vars = {}
@@ -76,16 +94,18 @@ class EnvConfig:
             "valid": len(missing_vars) == 0 and len(invalid_vars) == 0,
         }
 
-    def prompt_for_env_var(self, var_name: str, config: Dict) -> str:
+    def prompt_for_env_var(self, var_name: str, config: EnvVarConfig) -> str:
         """提示用户输入环境变量值"""
         print(f"\n{'='*60}")
         print(get_text("env_config_var_title").format(var_name))
+        description_key = cast(str, config["description_key"])
         print(
             get_text("env_config_description").format(
-                get_text(config["description_key"])
+                get_text(description_key)
             )
         )
-        print(get_text("env_config_example").format(config["example"]))
+        example = cast(str, config["example"])
+        print(get_text("env_config_example").format(example))
         print("=" * 60)
 
         while True:
@@ -95,7 +115,8 @@ class EnvConfig:
                 print(get_text("env_value_empty_error"))
                 continue
 
-            if not config["validation"](value):
+            validation_func = cast(Callable[[str], bool], config["validation"])
+            if not validation_func(value):
                 print(get_text("env_value_format_error"))
                 if var_name == "OPENAI_API_KEY":
                     print(get_text("env_api_key_format_hint"))
@@ -153,7 +174,6 @@ class EnvConfig:
             # 读取现有配置
             existing_vars = {}
             if self.config_file.exists():
-                temp_env = {}
                 dotenv.load_dotenv(
                     self.config_file,
                     override=False,
