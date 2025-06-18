@@ -75,6 +75,7 @@ class StepRunner:
         preaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
         postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
         stream_resp_callback: Optional[Callable[[str, bool], None]] = None,
+        timeout: Optional[int] = None,
     ) -> ActionOutput:
         """
         执行单个测试步骤
@@ -85,6 +86,7 @@ class StepRunner:
             preaction_callback: 动作前回调函数
             postaction_callback: 动作后回调函数
             stream_resp_callback: 流式响应回调函数
+            timeout: 超时时间（毫秒）
 
         Returns:
             执行结果
@@ -100,6 +102,7 @@ class StepRunner:
                 preaction_callback=preaction_callback,
                 postaction_callback=postaction_callback,
                 stream_resp_callback=stream_resp_callback,
+                timeout=timeout,
             )
 
             return result
@@ -172,47 +175,53 @@ def convert_yaml_to_testcases(
         for action in task["flow"]:
             if not isinstance(action, dict):
                 continue
-
+            action_continue_on_error = action.get("continueOnError", continue_on_error)
             # 处理AI动作
             if "ai" in action:
-                testcases.append(
-                    {
-                        "type": "ai_action",
-                        "prompt": action["ai"],
-                        "continueOnError": continue_on_error,
-                        "taskName": task_name,
-                    }
-                )
+                testcase = {
+                    "type": "ai_action",
+                    "prompt": action["ai"],
+                    "continueOnError": action_continue_on_error,
+                    "taskName": task_name,
+                }
+                # 添加timeout参数支持
+                if "timeout" in action:
+                    testcase["timeout"] = action["timeout"]
+                testcases.append(testcase)
             elif "aiAction" in action:
-                testcases.append(
-                    {
-                        "type": "ai_action",
-                        "prompt": action["aiAction"],
-                        "continueOnError": continue_on_error,
-                        "taskName": task_name,
-                    }
-                )
+                testcase = {
+                    "type": "ai_action",
+                    "prompt": action["aiAction"],
+                    "continueOnError": action_continue_on_error,
+                    "taskName": task_name,
+                }
+                # 添加timeout参数支持
+                if "timeout" in action:
+                    testcase["timeout"] = action["timeout"]
+                testcases.append(testcase)
             elif "aiWaitFor" in action:
-                # 暂时将等待条件作为普通AI动作处理
-                # timeout = action.get("timeout", 30000)
+                # 将等待条件作为AI动作处理，支持timeout参数
                 wait_prompt = action["aiWaitFor"]
-                testcases.append(
-                    {
-                        "type": "ai_action",
-                        "prompt": get_text("ai_wait_for_condition", wait_prompt),
-                        "continueOnError": continue_on_error,
-                        "taskName": task_name,
-                    }
-                )
+                testcase = {
+                    "type": "ai_action",
+                    "prompt": get_text("ai_wait_for_condition", wait_prompt),
+                    "continueOnError": action_continue_on_error,
+                    "taskName": task_name,
+                }
+                # 添加timeout参数支持
+                if "timeout" in action:
+                    testcase["timeout"] = action["timeout"]
+                testcases.append(testcase)
             elif "aiAssert" in action:
-                # 将断言作为AI动作处理
+                # 将断言作为AI动作处理，支持errorMessage参数
                 assert_prompt = action["aiAssert"]
-                # error_msg = action.get("errorMessage", "断言失败")
+                error_msg = action.get("errorMessage", "")
                 testcases.append(
                     {
                         "type": "ai_assert",
                         "prompt": assert_prompt,
-                        "continueOnError": continue_on_error,
+                        "errorMessage": error_msg,
+                        "continueOnError": action_continue_on_error,
                         "taskName": task_name,
                     }
                 )
@@ -223,7 +232,7 @@ def convert_yaml_to_testcases(
                     {
                         "type": "wait",
                         "duration": wait_ms,
-                        "continueOnError": continue_on_error,
+                        "continueOnError": action_continue_on_error,
                         "taskName": task_name,
                     }
                 )
@@ -234,7 +243,7 @@ def convert_yaml_to_testcases(
                     {
                         "type": "wait",
                         "duration": wait_ms,
-                        "continueOnError": continue_on_error,
+                        "continueOnError": action_continue_on_error,
                         "taskName": task_name,
                     }
                 )
@@ -322,6 +331,7 @@ def execute_unified_action(
     elif action_type == "ai_assert":
         # 处理AI断言动作
         prompt = action_dict.get("prompt", "")
+        error_message = action_dict.get("errorMessage", "")
         continue_on_error = action_dict.get("continueOnError", False)
 
         if is_cli_mode:
@@ -362,20 +372,32 @@ def execute_unified_action(
             if is_cli_mode:
                 print(get_text("assert_failed", task_name))
 
+            
             # 根据continueOnError决定是否抛出异常
             if continue_on_error:
+                error_description = get_text("assert_false_thought_continue", prompt) if not error_message else get_text("assert_false_thought_continue_with_msg", prompt, error_message)
+
+                if is_cli_mode:
+                    print(error_description)
+                else:
+                    logger.warning(error_description)
+
                 return ActionOutput(
-                    thought=get_text("assert_false_thought_continue", prompt),
+                    thought=error_description,
                     action="finished",
                     content=get_text("assert_false_content"),
                 )
             else:
-                # 抛出异常中断执行
-                raise RuntimeError(get_text("assert_failed_error", prompt))
+                # 抛出异常中断执行，使用自定义错误消息或默认消息
+                if error_message:
+                    raise RuntimeError(get_text("assert_failed_error", error_message))
+                else:
+                    raise RuntimeError(get_text("assert_failed_error", prompt))
 
     elif action_type == "ai_action":
         # 处理AI动作
         prompt = action_dict.get("prompt", "")
+        timeout = action_dict.get("timeout")  # 获取timeout参数
 
         if is_cli_mode:
             # CLI模式：直接使用agent.run
@@ -384,6 +406,7 @@ def execute_unified_action(
                 stream_resp_callback=stream_resp_callback,
                 include_history=include_history,
                 debug=debug,
+                timeout=timeout,
             )
         else:
             # GUI模式：使用StepRunner逻辑
@@ -394,6 +417,7 @@ def execute_unified_action(
                 preaction_callback=preaction_callback,
                 postaction_callback=postaction_callback,
                 stream_resp_callback=stream_resp_callback,
+                timeout=timeout,
             )
 
     else:
@@ -500,14 +524,28 @@ def run_testcases(
                     print(get_text("task_completed", prompt_idx + 1))
                 prompt_idx += 1
             else:
-                if is_cli_mode:
-                    print(get_text("task_not_completed", prompt_idx + 1))
+                # 任务未完成，根据continueOnError决定是否继续
+                if continue_on_error:
+                    if is_cli_mode:
+                        print(get_text("task_not_completed", prompt_idx + 1))
+                        print(get_text("continue_on_error_message"))
+                    else:
+                        logger.warning(
+                            get_text("step_not_completed_warning", prompt_idx + 1)
+                        )
+                        logger.info(get_text("continue_on_error_message"))
                     prompt_idx += 1
                 else:
-                    logger.warning(
-                        get_text("step_not_completed_warning", prompt_idx + 1)
-                    )
-                    prompt_idx += 1
+                    # 不允许继续，停止执行
+                    if is_cli_mode:
+                        print(get_text("task_not_completed", prompt_idx + 1))
+                        print(get_text("task_failed_stopping_execution"))
+                        break
+                    else:
+                        logger.error(
+                            get_text("step_not_completed_error", prompt_idx + 1)
+                        )
+                        raise RuntimeError(get_text("step_not_completed_error", prompt_idx + 1))
 
         except KeyboardInterrupt:
             if is_cli_mode:
@@ -551,6 +589,7 @@ def execute_single_step(
     postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
     stream_resp_callback: Optional[Callable[[str, bool], None]] = None,
     device_id: Optional[str] = None,
+    timeout: Optional[int] = None,
 ) -> ActionOutput:
     """执行单个测试步骤（用于GUI模式）"""
     if agent is None:
@@ -564,6 +603,7 @@ def execute_single_step(
         preaction_callback=preaction_callback,
         postaction_callback=postaction_callback,
         stream_resp_callback=stream_resp_callback,
+        timeout=timeout,
     )
 
 
@@ -674,6 +714,7 @@ def main() -> None:
                 "prompt": cmd,
                 "continueOnError": False,
                 "taskName": get_text("command_number", i + 1),
+                # 命令行模式默认不设置timeout，使用系统默认值
             }
             for i, cmd in enumerate(args.command)
         ]
@@ -696,6 +737,7 @@ def main() -> None:
                     "prompt": tc,
                     "continueOnError": False,
                     "taskName": get_text("step_number", i + 1),
+                    # JSON格式暂不支持timeout参数，使用系统默认值
                 }
                 for i, tc in enumerate(json_testcases)
             ]
@@ -721,6 +763,7 @@ def main() -> None:
                     "prompt": tc,
                     "continueOnError": False,
                     "taskName": get_text("step_number", i + 1),
+                    # 默认JSON文件暂不支持timeout参数，使用系统默认值
                 }
                 for i, tc in enumerate(json_testcases)
             ]

@@ -47,7 +47,7 @@ msgid "task_completed"
 msgstr "任务【{}】执行完毕。\n"
 
 msgid "task_not_completed"
-msgstr "任务【{}】未完成，继续下一个任务"
+msgstr "任务【{}】未完成。\n"
 
 msgid "user_interrupted"
 msgstr "\n用户中断执行"
@@ -121,6 +121,29 @@ msgstr "Waiting for {} seconds..."
 
 msgid "unsupported_action"
 msgstr "Unsupported action type: {}"
+
+# Timeout related
+msgid "timeout_exceeded"
+msgstr "超时: 执行时间超过 {} 毫秒限制"
+
+msgid "timeout_exceeded_thought"
+msgstr "任务执行超时: {} 毫秒"
+
+msgid "timeout_exceeded_content"
+msgstr "任务执行超时，设定时间限制: {} 毫秒，实际执行时间: {:.0f} 毫秒"
+
+# Continue on error related
+msgid "continue_on_error_message"
+msgstr "由于 continueOnError=true，继续执行下一个任务"
+
+msgid "task_failed_stopping_execution"
+msgstr "任务失败，停止执行"
+
+msgid "step_not_completed_error"
+msgstr "步骤 {} 未完成，终止执行"
+
+msgid "step_not_completed_warning"
+msgstr "步骤 {} 未完成，但继续执行"
 
 # Agent related
 msgid "debug_full_prompt"
@@ -454,10 +477,13 @@ msgid "assert_true_content"
 msgstr "断言通过"
 
 msgid "assert_false_thought_continue"
-msgstr "断言条件 '{}' 为假，但配置为继续执行"
+msgstr "❕ 断言条件 '{}' 为假，但配置为继续执行。"
+
+msgid "assert_false_thought_continue_with_msg"
+msgstr "❕ 断言条件 '{}' 为假，但配置为继续执行。错误信息：'{}'"
 
 msgid "assert_false_content"
-msgstr "断言失败但继续执行"
+msgstr "❕ 断言失败但继续执行"
 
 msgid "assert_failed_error"
-msgstr "断言失败: {}"
+msgstr "❌ 断言失败: {}"

@@ -47,7 +47,7 @@ msgid "task_completed"
 msgstr "Task [{}] completed.\n"
 
 msgid "task_not_completed"
-msgstr "Task [{}] not completed, continuing to next task"
+msgstr "Task [{}] not completed.\n"
 
 msgid "user_interrupted"
 msgstr "\nUser interrupted execution"
@@ -121,6 +121,29 @@ msgstr "Waiting for {} seconds..."
 
 msgid "unsupported_action"
 msgstr "Unsupported action type: {}"
+
+# Timeout related
+msgid "timeout_exceeded"
+msgstr "Timeout: execution time exceeded {} milliseconds limit"
+
+msgid "timeout_exceeded_thought"
+msgstr "Task execution timeout: {} milliseconds"
+
+msgid "timeout_exceeded_content"
+msgstr "Task execution timeout, time limit: {} milliseconds, actual execution time: {:.0f} milliseconds"
+
+# Continue on error related
+msgid "continue_on_error_message"
+msgstr "Due to continueOnError=true, continuing to next task"
+
+msgid "task_failed_stopping_execution"
+msgstr "Task failed, stopping execution"
+
+msgid "step_not_completed_error"
+msgstr "Step {} not completed, terminating execution"
+
+msgid "step_not_completed_warning"
+msgstr "Step {} not completed, but continuing execution"
 
 # Agent related
 msgid "debug_full_prompt"
@@ -454,10 +477,13 @@ msgid "assert_true_content"
 msgstr "Assert passed"
 
 msgid "assert_false_thought_continue"
-msgstr "Assert condition '{}' is false, but configured to continue execution"
+msgstr "❕ Assert condition '{}' is false, but configured to continue execution."
+
+msgid "assert_false_thought_continue_with_msg"
+msgstr "❕ Assert condition '{}' is false, but configured to continue execution. Error Msg: '{}'"
 
 msgid "assert_false_content"
-msgstr "Assert failed but continuing execution"
+msgstr "❕ Assert failed but continuing execution"
 
 msgid "assert_failed_error"
-msgstr "Assert failed: {}"
+msgstr "❌ Assert failed: {}"

@@ -92,6 +92,7 @@ class AndroidAgent:
         stream_resp_callback: Optional[Callable[[str, bool], None]] = None,
         include_history: bool = True,
         debug: bool = False,
+        timeout: Optional[int] = None,
     ) -> ActionOutput:
         """Run the agent with the given prompt."""
         # print(f"Running agent with prompt: {prompt}")
@@ -100,9 +101,21 @@ class AndroidAgent:
             output = None
             history = []  # 存储历史执行记录
             current_iter = 0
+            start_time = time.time()
 
             while max_iters > 0:
                 current_iter += 1
+
+                # 检查是否超时
+                if timeout is not None:
+                    elapsed_time = (time.time() - start_time) * 1000  # 转换为毫秒
+                    if elapsed_time > timeout:
+                        print(get_text("timeout_exceeded", timeout))
+                        return ActionOutput(
+                            thought=get_text("timeout_exceeded_thought", timeout),
+                            action="timeout",
+                            content=get_text("timeout_exceeded_content", timeout, elapsed_time)
+                        )
 
                 # Take a screenshot
                 img_bytes = self.adb.take_screenshot_to_bytes()

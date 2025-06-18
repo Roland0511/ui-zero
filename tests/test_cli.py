@@ -482,7 +482,40 @@ class TestUnifiedActionExecution(unittest.TestCase):
             "test prompt",
             stream_resp_callback=None,
             include_history=True,
-            debug=False
+            debug=False,
+            timeout=None
+        )
+        
+        self.assertEqual(result, mock_result)
+
+    def test_execute_unified_action_ai_with_timeout(self):
+        """测试AI动作支持timeout参数"""
+        action_dict = {
+            "type": "ai_action",
+            "prompt": "test prompt",
+            "timeout": 5000,  # 5秒timeout
+            "taskName": "test_ai",
+            "continueOnError": False
+        }
+
+        mock_result = Mock(spec=ActionOutput)
+        self.mock_agent.run.return_value = mock_result
+
+        result = execute_unified_action(
+            action_dict,
+            self.mock_agent,
+            include_history=True,
+            debug=False,
+            is_cli_mode=True
+        )
+
+        # 验证agent.run被正确调用，包含timeout参数
+        self.mock_agent.run.assert_called_once_with(
+            "test prompt",
+            stream_resp_callback=None,
+            include_history=True,
+            debug=False,
+            timeout=5000
         )
         
         self.assertEqual(result, mock_result)
@@ -524,7 +557,8 @@ class TestUnifiedActionExecution(unittest.TestCase):
                 screenshot_callback=mock_screenshot_callback,
                 preaction_callback=mock_preaction_callback,
                 postaction_callback=mock_postaction_callback,
-                stream_resp_callback=mock_stream_callback
+                stream_resp_callback=mock_stream_callback,
+                timeout=None
             )
 
             self.assertEqual(result, mock_result)
@@ -601,7 +635,8 @@ class TestStepRunner(unittest.TestCase):
             screenshot_callback=mock_screenshot_callback,
             preaction_callback=mock_preaction_callback,
             postaction_callback=mock_postaction_callback,
-            stream_resp_callback=mock_stream_callback
+            stream_resp_callback=mock_stream_callback,
+            timeout=None
         )
 
     def test_run_step_exception(self):
@@ -734,6 +769,93 @@ class TestRunTestcases(unittest.TestCase):
             {
                 "type": "ai_action",
                 "prompt": "failing action",
+                "taskName": "task1",
+                "continueOnError": False  # 错误时停止
+            },
+            {
+                "type": "ai_action",
+                "prompt": "should not execute",
+                "taskName": "task2",
+                "continueOnError": False
+            }
+        ]
+
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            mock_get_text.side_effect = lambda key, *args: f"mocked_{key}_{args}"
+
+            run_testcases(
+                testcases,
+                is_cli_mode=True
+            )
+
+            # 只应该执行第一个动作
+            self.assertEqual(mock_execute_unified.call_count, 1)
+
+    @patch('ui_zero.cli.ADBTool')
+    @patch('ui_zero.cli.AndroidAgent')
+    @patch('ui_zero.cli.execute_unified_action')
+    def test_run_testcases_not_finished_continue_on_error(self, mock_execute_unified, 
+                                                         mock_agent_class, mock_adb_class):
+        """测试任务未完成时的continueOnError逻辑"""
+        mock_adb_class.return_value = self.mock_adb
+        mock_agent_class.return_value = self.mock_agent
+
+        # 第一个动作未完成，第二个动作成功
+        mock_result_not_finished = Mock(spec=ActionOutput)
+        mock_result_not_finished.is_finished.return_value = False
+        mock_result_finished = Mock(spec=ActionOutput)
+        mock_result_finished.is_finished.return_value = True
+        
+        mock_execute_unified.side_effect = [
+            mock_result_not_finished,  # 第一个动作未完成
+            mock_result_finished       # 第二个动作成功
+        ]
+
+        testcases = [
+            {
+                "type": "ai_action",
+                "prompt": "not finishing action",
+                "taskName": "task1",
+                "continueOnError": True  # 错误时继续
+            },
+            {
+                "type": "ai_action",
+                "prompt": "finishing action",
+                "taskName": "task2",
+                "continueOnError": False
+            }
+        ]
+
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            mock_get_text.side_effect = lambda key, *args: f"mocked_{key}_{args}"
+
+            run_testcases(
+                testcases,
+                is_cli_mode=True
+            )
+
+            # 两个动作都应该被执行
+            self.assertEqual(mock_execute_unified.call_count, 2)
+
+    @patch('ui_zero.cli.ADBTool')
+    @patch('ui_zero.cli.AndroidAgent')
+    @patch('ui_zero.cli.execute_unified_action')
+    def test_run_testcases_not_finished_stop_on_error(self, mock_execute_unified, 
+                                                     mock_agent_class, mock_adb_class):
+        """测试任务未完成且continueOnError=False时停止执行"""
+        mock_adb_class.return_value = self.mock_adb
+        mock_agent_class.return_value = self.mock_agent
+
+        # 第一个动作未完成
+        mock_result_not_finished = Mock(spec=ActionOutput)
+        mock_result_not_finished.is_finished.return_value = False
+        
+        mock_execute_unified.return_value = mock_result_not_finished
+
+        testcases = [
+            {
+                "type": "ai_action",
+                "prompt": "not finishing action",
                 "taskName": "task1",
                 "continueOnError": False  # 错误时停止
             },
