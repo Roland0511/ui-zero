@@ -160,8 +160,7 @@ class EnvConfig:
                     interpolate=False,
                     encoding="utf-8",
                     stream=None,
-                    verbose=False,
-                    dotenv_path=self.config_file,
+                    verbose=False
                 )
                 # 获取现有的环境变量
                 for var_name in self.REQUIRED_ENV_VARS.keys():
