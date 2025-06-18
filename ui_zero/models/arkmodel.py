@@ -1,12 +1,14 @@
+"""Base model class for OpenAI-compatible APIs."""
+
 import os
-from openai import OpenAI
-from pathlib import Path
-import base64
 from typing import Optional
+
 from ..localization import get_text
 
 
 class ArkModel:
+    """Base class for OpenAI-compatible API models."""
+
     def __init__(
         self,
         model_name: str,
@@ -20,10 +22,15 @@ class ArkModel:
         self.base_url = base_url or os.getenv("OPENAI_BASE_URL")
 
     def __repr__(self):
-        return f"ArkModel(model_name={self.model_name}, api_key={self.api_key[:8]}..., base_url={self.base_url})"
+        api_key_snippet = self.api_key[:8] if self.api_key else None
+        return f"ArkModel(model_name={self.model_name}, api_key={api_key_snippet}..., base_url={self.base_url})"
 
     def __str__(self):
-        return f"ArkModel: {self.model_name}\nAPI Key: {self.api_key[:8] if self.api_key else None}...\nBase URL: {self.base_url}"
+        api_key_snippet = self.api_key[:8] if self.api_key else None
+        return f"ArkModel: {self.model_name}\nAPI Key: {api_key_snippet}...\nBase URL: {self.base_url}"
 
-    def run(self, user_prompt: str, image: Optional[str] = None):
+    def run(
+        self, user_prompt: str, image: Optional[str] = None
+    ):  # pylint: disable=unused-argument
+        """Run the model with the given prompt and image."""
         raise NotImplementedError(get_text("arkmodel_run_not_implemented"))

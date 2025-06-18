@@ -1,28 +1,36 @@
+"""Android UI automation agent module."""
+
 import time
-from .models import DoubaoUITarsModel as UIModel, ActionOutput
+from typing import Callable, Optional
+
 from .adb import ADBTool
 from .localization import get_text
-from typing import Callable, Optional
-import threading
+from .models import DoubaoUITarsModel as UIModel, ActionOutput
 
 
 def take_action(adb: ADBTool, output: ActionOutput):
+    """Execute action based on model output."""
     if output.is_click_action():
-        adb.tap(output.point_abs[0], output.point_abs[1])
+        if output.point_abs is not None:
+            adb.tap(output.point_abs[0], output.point_abs[1])
     elif output.is_double_click_action():
-        adb.double_tap(output.point_abs[0], output.point_abs[1])
+        if output.point_abs is not None:
+            adb.double_tap(output.point_abs[0], output.point_abs[1])
     elif output.is_long_press_action():
-        adb.long_press(output.point_abs[0], output.point_abs[1])
+        if output.point_abs is not None:
+            adb.long_press(output.point_abs[0], output.point_abs[1])
     elif output.is_drag_action():
-        adb.drag(
-            output.start_point_abs[0],
-            output.start_point_abs[1],
-            output.end_point_abs[0],
-            output.end_point_abs[1],
-            500,
-        )
+        if output.start_point_abs is not None and output.end_point_abs is not None:
+            adb.drag(
+                output.start_point_abs[0],
+                output.start_point_abs[1],
+                output.end_point_abs[0],
+                output.end_point_abs[1],
+                500,
+            )
     elif output.is_type_action():
-        adb.input_text(output.content)
+        if output.content is not None:
+            adb.input_text(output.content)
     elif output.is_press_back_action():
         adb.press_back()
     elif output.is_press_home_action():
@@ -47,7 +55,7 @@ def take_action(adb: ADBTool, output: ActionOutput):
 class AndroidAgent:
     """Android Agent for UI testing."""
 
-    def __init__(self, adb: ADBTool = None, model: UIModel = None):
+    def __init__(self, adb: Optional[ADBTool] = None, model: Optional[UIModel] = None):
         """Initialize the agent with ADB tool and model."""
         self.adb = adb or ADBTool()
         self.model = model or UIModel()
@@ -59,19 +67,22 @@ class AndroidAgent:
 
         # 构建历史记录部分
         history_text = "\n## Action History\n"
-        for i, (step_prompt, step_output) in enumerate(history, 1):
+        for i, (_, step_output) in enumerate(history, 1):
             history_text += f"Step {i}:\n"
             history_text += f"Thought: {step_output.thought}\n"
             history_text += f"Action: {step_output.action}"
 
             # 添加动作参数信息
-            if step_output.point:
+            if step_output.point is not None:
                 history_text += f"(point='<point>{step_output.point[0]} {step_output.point[1]}</point>')"
-            elif step_output.start_point and step_output.end_point:
+            elif (
+                step_output.start_point is not None
+                and step_output.end_point is not None
+            ):
                 history_text += f"(start_point='<point>{step_output.start_point[0]} {step_output.start_point[1]}</point>', end_point='<point>{step_output.end_point[0]} {step_output.end_point[1]}</point>')"
-            elif step_output.content:
+            elif step_output.content is not None:
                 history_text += f"(content='{step_output.content}')"
-            elif step_output.app_name:
+            elif step_output.app_name is not None:
                 history_text += f"(app_name='{step_output.app_name}')"
             else:
                 history_text += "()"
@@ -114,7 +125,9 @@ class AndroidAgent:
                         return ActionOutput(
                             thought=get_text("timeout_exceeded_thought", timeout),
                             action="timeout",
-                            content=get_text("timeout_exceeded_content", timeout, elapsed_time)
+                            content=get_text(
+                                "timeout_exceeded_content", timeout, elapsed_time
+                            ),
                         )
 
                 # Take a screenshot

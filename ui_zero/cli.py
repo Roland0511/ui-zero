@@ -21,8 +21,7 @@ import json
 import logging
 import os
 import sys
-import time
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import dotenv
 import yaml
@@ -251,7 +250,7 @@ def convert_yaml_to_testcases(
     return testcases, device_id
 
 
-def execute_wait_action(duration_ms: int, task_name: str = "") -> ActionOutput:
+def execute_wait_action(duration_ms: int, task_name: str = "") -> ActionOutput:  # pylint: disable=unused-argument
     """
     执行等待动作，返回ActionOutput对象
 
@@ -372,10 +371,16 @@ def execute_unified_action(
             if is_cli_mode:
                 print(get_text("assert_failed", task_name))
 
-            
             # 根据continueOnError决定是否抛出异常
             if continue_on_error:
-                error_description = get_text("assert_false_thought_continue", prompt) if not error_message else get_text("assert_false_thought_continue_with_msg", prompt, error_message)
+                if not error_message:
+                    error_description = get_text(
+                        "assert_false_thought_continue", prompt
+                    )
+                else:
+                    error_description = get_text(
+                        "assert_false_thought_continue_with_msg", prompt, error_message
+                    )
 
                 if is_cli_mode:
                     print(error_description)
@@ -453,7 +458,7 @@ def run_testcases(
     """
     adb_tool = ADBTool(device_id=device_id) if device_id else ADBTool()
     agent = AndroidAgent(adb=adb_tool)
-    test_runner = StepRunner(agent)
+    _ = StepRunner(agent)  # Create runner for any initialization side effects
 
     # CLI模式的初始化输出
     if is_cli_mode:
@@ -489,15 +494,14 @@ def run_testcases(
     total_steps = len(testcase_prompts)
 
     while prompt_idx < total_steps:
+        cur_action = None
         try:
             cur_action = testcase_prompts[prompt_idx]
 
             # 提取动作信息
             action_type = cur_action.get("type", "ai_action")
             continue_on_error = cur_action.get("continueOnError", False)
-            task_name = cur_action.get(
-                "taskName", get_text("step_number", prompt_idx + 1)
-            )
+            _ = cur_action.get("taskName", get_text("step_number", prompt_idx + 1))
 
             # 使用统一的动作执行函数
             if is_cli_mode and action_type == "ai_action":
@@ -545,7 +549,9 @@ def run_testcases(
                         logger.error(
                             get_text("step_not_completed_error", prompt_idx + 1)
                         )
-                        raise RuntimeError(get_text("step_not_completed_error", prompt_idx + 1))
+                        raise RuntimeError(
+                            get_text("step_not_completed_error", prompt_idx + 1)
+                        )
 
         except KeyboardInterrupt:
             if is_cli_mode:
@@ -558,7 +564,9 @@ def run_testcases(
             error_msg = get_text("step_execution_error", prompt_idx + 1, e)
 
             # 检查是否应该继续执行
-            should_continue = cur_action.get("continueOnError", False)
+            should_continue = (
+                cur_action.get("continueOnError", False) if cur_action else False
+            )
 
             if should_continue:
                 if is_cli_mode:

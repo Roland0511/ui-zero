@@ -1,16 +1,18 @@
-import os
+"""DoubaoUITarsModel implementation for UI automation using ByteDance's UI-TARS model."""
+
 import base64
-import re
+import io
 import json
 import math
+import os
+import re
 from pathlib import Path
-from PIL import Image, ImageDraw
-import io
-import matplotlib.pyplot as plt
-from typing import Optional
-from openai import OpenAI
-from openai.types.chat import ChatCompletionChunk
 from typing import Callable, Optional
+
+import matplotlib.pyplot as plt
+from openai import OpenAI
+from PIL import Image, ImageDraw
+
 from .arkmodel import ArkModel
 from ..localization import get_text
 
@@ -339,7 +341,9 @@ def image_to_base64(image_path_or_bytes):
     elif isinstance(image_path_or_bytes, str):
         # 如果是字符串路径，读取文件
         if not os.path.exists(image_path_or_bytes):
-            raise FileNotFoundError(get_text("image_file_not_found", image_path_or_bytes))
+            raise FileNotFoundError(
+                get_text("image_file_not_found", image_path_or_bytes)
+            )
         if not ext:
             ext = Path(image_path_or_bytes).suffix.lower()
         with open(image_path_or_bytes, "rb") as image_file:
@@ -364,7 +368,7 @@ def draw_box_and_show(image, start_point=None, end_point=None):
     arrow_color = "blue"
     point_size = 10
     line_width = 5
-    drag_arrow_length = 150  # drag操作箭头长度
+    # drag_arrow_length = 150  # drag操作箭头长度 - currently unused
 
     draw = ImageDraw.Draw(image)
 
