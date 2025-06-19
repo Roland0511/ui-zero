@@ -310,7 +310,10 @@ class ADBTool:
             # adb shell ime reset
             self.execute_command(["shell", "ime", "reset"])
         except Exception as e:
-            print(get_text("adb_keyboard_input_failed").format(e))
+            # 使用日志系统记录错误
+            from .logging_config import get_logger
+            logger = get_logger("adb")
+            logger.warning(get_text("adb_keyboard_input_failed").format(e))
             self.execute_command(["shell", "input", "text", f'"{text}"'])
 
     def get_screen_size(self) -> Tuple[int, int]:

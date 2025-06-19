@@ -5,7 +5,11 @@ from typing import Callable, Optional
 
 from .adb import ADBTool
 from .localization import get_text
+from .logging_config import get_logger
 from .models import DoubaoUITarsModel as UIModel, ActionOutput
+
+# 获取agent模块的logger
+logger = get_logger("agent")
 
 
 def take_action(adb: ADBTool, output: ActionOutput):
@@ -46,10 +50,10 @@ def take_action(adb: ADBTool, output: ActionOutput):
             duration_ms = 2000  # Default 2 seconds
 
         duration_seconds = duration_ms / 1000.0
-        print(get_text("waiting_for_ms", duration_ms))
+        logger.info(get_text("waiting_for_ms", duration_ms))
         time.sleep(duration_seconds)
     else:
-        print(get_text("unsupported_action", output.action))
+        logger.warning(get_text("unsupported_action", output.action))
 
 
 class AndroidAgent:
@@ -99,7 +103,7 @@ class AndroidAgent:
         max_iters: int = 10,
         screenshot_callback: Optional[Callable[[bytes], None]] = None,
         preaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
-        postaction_callback: Optional[Callable[[str, ActionOutput], None]] = None,
+        postaction_callback: Optional[Callable[[str, ActionOutput, int], None]] = None,
         stream_resp_callback: Optional[Callable[[str, bool], None]] = None,
         include_history: bool = True,
         debug: bool = False,
@@ -121,7 +125,7 @@ class AndroidAgent:
                 if timeout is not None:
                     elapsed_time = (time.time() - start_time) * 1000  # 转换为毫秒
                     if elapsed_time > timeout:
-                        print(get_text("timeout_exceeded", timeout))
+                        logger.warning(get_text("timeout_exceeded", timeout))
                         return ActionOutput(
                             thought=get_text("timeout_exceeded_thought", timeout),
                             action="timeout",
@@ -142,10 +146,10 @@ class AndroidAgent:
                     full_prompt = prompt
 
                 if debug:
-                    print(get_text("debug_full_prompt", current_iter))
-                    print(get_text("prompt_separator"))
-                    print(full_prompt)
-                    print(get_text("prompt_separator"))
+                    logger.debug(get_text("debug_full_prompt", current_iter))
+                    logger.debug(get_text("prompt_separator"))
+                    logger.debug(full_prompt)
+                    logger.debug(get_text("prompt_separator"))
 
                 # Run the model
                 output = self.model.run(
@@ -167,9 +171,9 @@ class AndroidAgent:
                     break
 
                 take_action(self.adb, output)
-                if postaction_callback:
-                    postaction_callback(prompt, output)
                 max_iters -= 1
+                if postaction_callback:
+                    postaction_callback(prompt, output, max_iters)
                 # sleep to allow the action to take effect
                 time.sleep(0.3)
 

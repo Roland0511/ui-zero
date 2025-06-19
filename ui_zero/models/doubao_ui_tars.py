@@ -492,7 +492,9 @@ class DoubaoUITarsModel(ArkModel):
             for chunk in stream:
                 # cc:ChatCompletionChunk = chunk
                 if debug:
-                    print(get_text("model_response_chunk").format(chunk))
+                    from ..logging_config import get_logger
+                    logger = get_logger("doubao_ui_tars")
+                    logger.debug(get_text("model_response_chunk").format(chunk))
                 # 处理分块响应
                 if (
                     chunk.choices
@@ -519,11 +521,15 @@ class DoubaoUITarsModel(ArkModel):
                 model_response = full_response.strip()
 
             if not model_response:
-                print(get_text("model_response_empty"))
+                from ..logging_config import get_logger
+                logger = get_logger("doubao_ui_tars")
+                logger.warning(get_text("model_response_empty"))
                 return ActionOutput()
 
             if debug:
-                print(get_text("model_response_debug").format(model_response))
+                from ..logging_config import get_logger
+                logger = get_logger("doubao_ui_tars")
+                logger.debug(get_text("model_response_debug").format(model_response))
             # 解析输出
             parsed_output = parse_action_output(model_response)
 
@@ -552,12 +558,16 @@ class DoubaoUITarsModel(ArkModel):
             return parsed_output
 
         except Exception as e:
-            print(get_text("api_error").format(e))
+            from ..logging_config import get_logger
+            logger = get_logger("doubao_ui_tars")
+            logger.error(get_text("api_error").format(e))
             return ActionOutput()
 
     def show_debug_box(self, image_path: str, parsed_output: ActionOutput):
         if not image_path or not parsed_output:
-            print(get_text("debug_box_missing_data"))
+            from ..logging_config import get_logger
+            logger = get_logger("doubao_ui_tars")
+            logger.warning(get_text("debug_box_missing_data"))
             return
 
         try:
@@ -576,4 +586,6 @@ class DoubaoUITarsModel(ArkModel):
 
             draw_box_and_show(image, start_point_abs, end_point_abs)
         except Exception as e:
-            print(get_text("debug_box_error").format(e))
+            from ..logging_config import get_logger
+            logger = get_logger("doubao_ui_tars")
+            logger.error(get_text("debug_box_error").format(e))

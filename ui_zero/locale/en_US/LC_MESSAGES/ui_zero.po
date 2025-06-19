@@ -177,6 +177,22 @@ msgstr "Interactive setup for environment variable configuration"
 msgid "arg_validate_env_help"
 msgstr "Validate current environment configuration"
 
+msgid "arg_log_mode_help"
+msgstr "Set logging mode: cli (simple output) or gui (detailed output)"
+
+msgid "arg_log_level_help"
+msgstr "Set logging level: DEBUG, INFO, WARNING, ERROR"
+
+# UI Display related
+msgid "overall_progress"
+msgstr "Overall Progress"
+
+msgid "current_task"
+msgstr "Current Task"
+
+msgid "execution_failed"
+msgstr "Execution Failed"
+
 # Environment configuration messages
 msgid "env_config_saved"
 msgstr "Environment configuration saved to: {}"
@@ -487,3 +503,50 @@ msgstr "❕ Assert failed but continuing execution"
 
 msgid "assert_failed_error"
 msgstr "❌ Assert failed: {}"
+
+# UI Display related - missing keys
+msgid "step_column"
+msgstr "Step"
+
+msgid "task_description_column"
+msgstr "Task Description"
+
+msgid "status_column"
+msgstr "Status"
+
+msgid "remaining_iterations_column"
+msgstr "Remaining Iterations"
+
+msgid "thinking_placeholder"
+msgstr "Thinking..."
+
+msgid "thinking_process_title"
+msgstr "Thinking Process"
+
+msgid "initializing_panel"
+msgstr "Initializing..."
+
+msgid "status_executing"
+msgstr "Executing"
+
+msgid "status_completed"
+msgstr "Completed"
+
+msgid "status_error"
+msgstr "Error"
+
+msgid "status_running"
+msgstr "Running"
+
+msgid "status_waiting"
+msgstr "Waiting"
+
+# Console panel related
+msgid "console_panel_title"
+msgstr "Console Info"
+
+msgid "log_file_path"
+msgstr "Log file path"
+
+msgid "no_stderr_output"
+msgstr "No error output"

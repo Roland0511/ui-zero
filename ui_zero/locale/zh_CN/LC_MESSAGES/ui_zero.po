@@ -177,6 +177,22 @@ msgstr "交互式设置环境变量配置"
 msgid "arg_validate_env_help"
 msgstr "验证当前环境配置的有效性"
 
+msgid "arg_log_mode_help"
+msgstr "设置日志输出模式: cli (简洁输出) 或 gui (详细输出)"
+
+msgid "arg_log_level_help"
+msgstr "设置日志级别: DEBUG, INFO, WARNING, ERROR"
+
+# UI Display related
+msgid "overall_progress"
+msgstr "总体进度"
+
+msgid "current_task"
+msgstr "当前任务"
+
+msgid "execution_failed"
+msgstr "执行失败"
+
 # Environment configuration messages
 msgid "env_config_saved"
 msgstr "环境配置已保存到: {}"
@@ -487,3 +503,50 @@ msgstr "❕ 断言失败但继续执行"
 
 msgid "assert_failed_error"
 msgstr "❌ 断言失败: {}"
+
+# UI Display related - missing keys
+msgid "step_column"
+msgstr "步骤"
+
+msgid "task_description_column"
+msgstr "任务描述"
+
+msgid "status_column"
+msgstr "状态"
+
+msgid "remaining_iterations_column"
+msgstr "剩余重试"
+
+msgid "thinking_placeholder"
+msgstr "思考中..."
+
+msgid "thinking_process_title"
+msgstr "思考过程"
+
+msgid "initializing_panel"
+msgstr "初始化中..."
+
+msgid "status_executing"
+msgstr "执行中"
+
+msgid "status_completed"
+msgstr "已完成"
+
+msgid "status_error"
+msgstr "错误"
+
+msgid "status_running"
+msgstr "运行中"
+
+msgid "status_waiting"
+msgstr "等待中"
+
+# Console panel related
+msgid "console_panel_title"
+msgstr "控制台信息"
+
+msgid "log_file_path"
+msgstr "日志文件路径"
+
+msgid "no_stderr_output"
+msgstr "暂无错误输出"

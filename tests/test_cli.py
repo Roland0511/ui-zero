@@ -379,8 +379,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
             result = execute_unified_action(
                 action_dict,
                 self.mock_agent,
-                is_cli_mode=True
-            )
+                )
 
             # 验证返回结果
             self.assertIsInstance(result, ActionOutput)
@@ -389,7 +388,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
 
             # 验证调用
             mock_take_action.assert_called_once()
-            self.assertEqual(len(mock_get_text.call_args_list), 5)  # 5个get_text调用
+            self.assertEqual(len(mock_get_text.call_args_list), 3)  # 3个get_text调用
 
     def test_execute_unified_action_wait_gui_mode(self):
         """测试GUI模式下的等待动作执行"""
@@ -409,7 +408,6 @@ class TestUnifiedActionExecution(unittest.TestCase):
                 self.mock_agent,
                 preaction_callback=mock_preaction_callback,
                 postaction_callback=mock_postaction_callback,
-                is_cli_mode=False
             )
 
             # 验证回调被调用
@@ -451,8 +449,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
             result = execute_unified_action(
                 action_dict,
                 self.mock_agent,
-                is_cli_mode=True
-            )
+                )
 
             self.assertEqual(result.action, "finished")
             self.assertIn("等待 2000ms 完成", result.content)  # 默认2000ms
@@ -474,12 +471,14 @@ class TestUnifiedActionExecution(unittest.TestCase):
             self.mock_agent,
             include_history=True,
             debug=False,
-            is_cli_mode=True
         )
 
         # 验证agent.run被正确调用
         self.mock_agent.run.assert_called_once_with(
             "test prompt",
+            screenshot_callback=None,
+            preaction_callback=None,
+            postaction_callback=None,
             stream_resp_callback=None,
             include_history=True,
             debug=False,
@@ -506,12 +505,14 @@ class TestUnifiedActionExecution(unittest.TestCase):
             self.mock_agent,
             include_history=True,
             debug=False,
-            is_cli_mode=True
         )
 
         # 验证agent.run被正确调用，包含timeout参数
         self.mock_agent.run.assert_called_once_with(
             "test prompt",
+            screenshot_callback=None,
+            preaction_callback=None,
+            postaction_callback=None,
             stream_resp_callback=None,
             include_history=True,
             debug=False,
@@ -535,33 +536,30 @@ class TestUnifiedActionExecution(unittest.TestCase):
         mock_postaction_callback = Mock()
         mock_stream_callback = Mock()
 
-        with patch('ui_zero.cli.StepRunner') as mock_test_runner_class:
-            mock_test_runner = Mock()
-            mock_test_runner.run_step.return_value = mock_result
-            mock_test_runner_class.return_value = mock_test_runner
+        self.mock_agent.run.return_value = mock_result
 
-            result = execute_unified_action(
-                action_dict,
-                self.mock_agent,
-                screenshot_callback=mock_screenshot_callback,
-                preaction_callback=mock_preaction_callback,
-                postaction_callback=mock_postaction_callback,
-                stream_resp_callback=mock_stream_callback,
-                is_cli_mode=False
-            )
+        result = execute_unified_action(
+            action_dict,
+            self.mock_agent,
+            screenshot_callback=mock_screenshot_callback,
+            preaction_callback=mock_preaction_callback,
+            postaction_callback=mock_postaction_callback,
+            stream_resp_callback=mock_stream_callback,
+        )
 
-            # 验证StepRunner被创建和调用
-            mock_test_runner_class.assert_called_once_with(self.mock_agent)
-            mock_test_runner.run_step.assert_called_once_with(
-                "test prompt",
-                screenshot_callback=mock_screenshot_callback,
-                preaction_callback=mock_preaction_callback,
-                postaction_callback=mock_postaction_callback,
-                stream_resp_callback=mock_stream_callback,
-                timeout=None
-            )
+        # 验证agent.run被正确调用
+        self.mock_agent.run.assert_called_once_with(
+            "test prompt",
+            screenshot_callback=mock_screenshot_callback,
+            preaction_callback=mock_preaction_callback,
+            postaction_callback=mock_postaction_callback,
+            stream_resp_callback=mock_stream_callback,
+            include_history=True,
+            debug=False,
+            timeout=None
+        )
 
-            self.assertEqual(result, mock_result)
+        self.assertEqual(result, mock_result)
 
     def test_execute_unified_action_unknown_type(self):
         """测试未知动作类型"""
@@ -578,8 +576,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
             result = execute_unified_action(
                 action_dict,
                 self.mock_agent,
-                is_cli_mode=True
-            )
+                )
 
             self.assertEqual(result.action, "error")
             self.assertIn("不支持的动作类型", result.content)
@@ -701,8 +698,7 @@ class TestRunTestcases(unittest.TestCase):
                 testcases,
                 include_history=True,
                 debug=False,
-                is_cli_mode=True
-            )
+                )
 
             # 验证execute_unified_action被调用了两次
             self.assertEqual(mock_execute_unified.call_count, 2)
@@ -710,7 +706,8 @@ class TestRunTestcases(unittest.TestCase):
             # 验证第一次调用参数
             first_call = mock_execute_unified.call_args_list[0]
             self.assertEqual(first_call[0][0], testcases[0])  # action_dict
-            self.assertEqual(first_call[1]['is_cli_mode'], True)
+            # Check that the agent was passed as the second argument
+            self.assertEqual(first_call[0][1], self.mock_agent)
 
     @patch('ui_zero.cli.ADBTool')
     @patch('ui_zero.cli.AndroidAgent')
@@ -748,8 +745,7 @@ class TestRunTestcases(unittest.TestCase):
             # 应该不抛出异常，继续执行第二个测试用例
             run_testcases(
                 testcases,
-                is_cli_mode=True
-            )
+                )
 
             # 验证两个动作都被尝试执行
             self.assertEqual(mock_execute_unified.call_count, 2)
@@ -785,8 +781,7 @@ class TestRunTestcases(unittest.TestCase):
 
             run_testcases(
                 testcases,
-                is_cli_mode=True
-            )
+                )
 
             # 只应该执行第一个动作
             self.assertEqual(mock_execute_unified.call_count, 1)
@@ -831,8 +826,7 @@ class TestRunTestcases(unittest.TestCase):
 
             run_testcases(
                 testcases,
-                is_cli_mode=True
-            )
+                )
 
             # 两个动作都应该被执行
             self.assertEqual(mock_execute_unified.call_count, 2)
@@ -872,8 +866,7 @@ class TestRunTestcases(unittest.TestCase):
 
             run_testcases(
                 testcases,
-                is_cli_mode=True
-            )
+                )
 
             # 只应该执行第一个动作
             self.assertEqual(mock_execute_unified.call_count, 1)
@@ -904,8 +897,7 @@ class TestRunTestcases(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 run_testcases(
                     testcases,
-                    is_cli_mode=True
-                )
+                        )
 
 
 class TestExecuteSingleStep(unittest.TestCase):
@@ -988,7 +980,6 @@ class TestRunTestcasesForGui(unittest.TestCase):
             stream_resp_callback=mock_stream_callback,
             include_history=False,
             debug=True,
-            is_cli_mode=False,
             device_id="test_device"
         )
 

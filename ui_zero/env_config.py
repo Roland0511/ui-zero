@@ -17,20 +17,26 @@ from .localization import get_text
 # 定义类型
 class EnvVarConfig(TypedDict):
     """环境变量配置类型"""
+
     description_key: str
     example: str
     validation: Callable[[str], bool]
 
+
 class InvalidVarInfo(TypedDict):
     """无效环境变量信息类型"""
+
     value: str
     config: EnvVarConfig
 
+
 class EnvCheckResult(TypedDict):
     """环境检查结果类型"""
+
     missing: Dict[str, EnvVarConfig]
     invalid: Dict[str, InvalidVarInfo]
     valid: bool
+
 
 class EnvConfig:
     """环境配置管理器"""
@@ -99,11 +105,7 @@ class EnvConfig:
         print(f"\n{'='*60}")
         print(get_text("env_config_var_title").format(var_name))
         description_key = cast(str, config["description_key"])
-        print(
-            get_text("env_config_description").format(
-                get_text(description_key)
-            )
-        )
+        print(get_text("env_config_description").format(get_text(description_key)))
         example = cast(str, config["example"])
         print(get_text("env_config_example").format(example))
         print("=" * 60)
@@ -180,7 +182,7 @@ class EnvConfig:
                     interpolate=False,
                     encoding="utf-8",
                     stream=None,
-                    verbose=False
+                    verbose=False,
                 )
                 # 获取现有的环境变量
                 for var_name in self.REQUIRED_ENV_VARS.keys():

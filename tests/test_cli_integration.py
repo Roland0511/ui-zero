@@ -156,7 +156,6 @@ class TestCLIIntegration(unittest.TestCase):
             result = execute_unified_action(
                 wait_action,
                 mock_agent,
-                is_cli_mode=True
             )
 
             # 验证结果
