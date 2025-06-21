@@ -741,6 +741,18 @@ def main() -> None:
         "--validate-env", action="store_true", help=get_text("arg_validate_env_help")
     )
 
+    parser.add_argument(
+        "--serve", action="store_true", help=get_text("arg_serve_help")
+    )
+
+    parser.add_argument(
+        "--host", type=str, default="0.0.0.0", help=get_text("arg_host_help")
+    )
+
+    parser.add_argument(
+        "--port", type=int, default=8000, help=get_text("arg_port_help")
+    )
+
 
     parser.add_argument(
         "--log-level",
@@ -769,6 +781,13 @@ def main() -> None:
 
     if args.validate_env:
         success = validate_env()
+        sys.exit(0 if success else 1)
+
+    # 处理启动服务器命令
+    if args.serve:
+        from .server import start_server
+        logger.info(get_text("starting_api_server", args.host, args.port))
+        success = start_server(host=args.host, port=args.port, log_level=args.log_level.lower())
         sys.exit(0 if success else 1)
 
     # 处理列出设备命令

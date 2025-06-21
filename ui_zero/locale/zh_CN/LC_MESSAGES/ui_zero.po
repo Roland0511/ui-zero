@@ -550,3 +550,64 @@ msgstr "日志文件路径"
 
 msgid "no_stderr_output"
 msgstr "暂无错误输出"
+
+# API Server related
+msgid "arg_serve_help"
+msgstr "启动API服务器模式"
+
+msgid "arg_host_help"
+msgstr "API服务器主机地址（默认：0.0.0.0）"
+
+msgid "arg_port_help"
+msgstr "API服务器端口号（默认：8000）"
+
+msgid "starting_api_server"
+msgstr "正在启动API服务器 {}:{}"
+
+msgid "api_server_description"
+msgstr "UI-Zero API服务器 - 为UI自动化提供REST API和WebSocket接口"
+
+msgid "server_starting"
+msgstr "正在启动API服务器 {}:{}"
+
+msgid "server_start_error"
+msgstr "启动服务器失败：{}"
+
+msgid "env_config_incomplete_invalid"
+msgstr "环境配置不完整或无效"
+
+msgid "command_execution_started"
+msgstr "命令执行已开始"
+
+msgid "command_execution_error"
+msgstr "命令执行错误：{}"
+
+msgid "testcase_execution_started"
+msgstr "测试用例执行已开始"
+
+msgid "testcase_execution_error"
+msgstr "测试用例执行错误：{}"
+
+msgid "yaml_testcase_execution_started"
+msgstr "YAML测试用例执行已开始"
+
+msgid "yaml_testcase_execution_error"
+msgstr "YAML测试用例执行错误：{}"
+
+msgid "session_not_found"
+msgstr "会话未找到"
+
+msgid "websocket_connected"
+msgstr "WebSocket连接成功"
+
+msgid "websocket_disconnected"
+msgstr "WebSocket连接已断开，会话：{}"
+
+msgid "websocket_error"
+msgstr "WebSocket错误，会话 {}：{}"
+
+msgid "device_info_error"
+msgstr "获取设备 {} 信息失败：{}"
+
+msgid "command_number"
+msgstr "命令 {}"

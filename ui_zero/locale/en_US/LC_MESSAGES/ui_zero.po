@@ -550,3 +550,64 @@ msgstr "Log file path"
 
 msgid "no_stderr_output"
 msgstr "No error output"
+
+# API Server related
+msgid "arg_serve_help"
+msgstr "Start API server mode"
+
+msgid "arg_host_help"
+msgstr "Host address for API server (default: 0.0.0.0)"
+
+msgid "arg_port_help"
+msgstr "Port number for API server (default: 8000)"
+
+msgid "starting_api_server"
+msgstr "Starting API server on {}:{}"
+
+msgid "api_server_description"
+msgstr "UI-Zero API Server - Provides REST API and WebSocket interface for UI automation"
+
+msgid "server_starting"
+msgstr "Starting API server on {}:{}"
+
+msgid "server_start_error"
+msgstr "Failed to start server: {}"
+
+msgid "env_config_incomplete_invalid"
+msgstr "Environment configuration is incomplete or invalid"
+
+msgid "command_execution_started"
+msgstr "Command execution started"
+
+msgid "command_execution_error"
+msgstr "Command execution error: {}"
+
+msgid "testcase_execution_started"
+msgstr "Test case execution started"
+
+msgid "testcase_execution_error"
+msgstr "Test case execution error: {}"
+
+msgid "yaml_testcase_execution_started"
+msgstr "YAML test case execution started"
+
+msgid "yaml_testcase_execution_error"
+msgstr "YAML test case execution error: {}"
+
+msgid "session_not_found"
+msgstr "Session not found"
+
+msgid "websocket_connected"
+msgstr "WebSocket connected successfully"
+
+msgid "websocket_disconnected"
+msgstr "WebSocket disconnected for session: {}"
+
+msgid "websocket_error"
+msgstr "WebSocket error for session {}: {}"
+
+msgid "device_info_error"
+msgstr "Failed to get device info for {}: {}"
+
+msgid "command_number"
+msgstr "Command {}"
