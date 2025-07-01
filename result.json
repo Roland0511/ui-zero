@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "export_time": "2025-07-01T15:27:43.567339",
+    "total_tasks": 1,
+    "current_step": 0,
+    "console_info": {
+      "start_time": "2025-07-01 15:27:22",
+      "total_tasks": 1
+    }
+  },
+  "tasks": [
+    {
+      "step": 1,
+      "description": "解锁屏幕",
+      "status": "completed",
+      "remaining_iterations": 8,
+      "is_current": true
+    }
+  ]
+}

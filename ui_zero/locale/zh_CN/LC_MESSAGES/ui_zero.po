@@ -611,3 +611,12 @@ msgstr "获取设备 {} 信息失败：{}"
 
 msgid "command_number"
 msgstr "命令 {}"
+
+msgid "arg_output_help"
+msgstr "指定JSON格式的输出文件路径，用于保存执行结果"
+
+msgid "json_export_success"
+msgstr "执行结果已成功导出到文件: {}"
+
+msgid "json_export_failed"
+msgstr "导出执行结果到文件失败: {}"

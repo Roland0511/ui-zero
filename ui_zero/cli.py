@@ -761,6 +761,10 @@ def main() -> None:
         help=get_text("arg_log_level_help"),
     )
 
+    parser.add_argument(
+        "--output", "-o", type=str, help=get_text("arg_output_help")
+    )
+
     args = parser.parse_args()
 
     # 配置文件日志系统
@@ -901,6 +905,15 @@ def main() -> None:
             debug=args.debug,
             device_id=final_device_id,
         )
+        
+        # 执行完成后，如果指定了输出文件，导出结果
+        if args.output:
+            from .ui_display import export_execution_results_to_json
+            if export_execution_results_to_json(args.output):
+                logger.info(get_text("json_export_success", args.output))
+            else:
+                logger.error(get_text("json_export_failed", args.output))
+                
     except KeyboardInterrupt:
         # 主函数级别的中断处理
         ui_display = get_ui_display()

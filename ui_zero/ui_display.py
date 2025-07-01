@@ -6,6 +6,7 @@ UI显示系统 - 使用rich库实现终端GUI界面
 将终端也视为一种GUI界面，统一CLI和GUI模式的用户体验
 """
 
+import json
 import sys
 import time
 from datetime import datetime
@@ -425,6 +426,30 @@ class UIDisplay:  # pylint: disable=too-many-instance-attributes
         """关闭UI显示"""
         self.stop_display()
 
+    def export_task_table_to_json(self) -> Dict[str, Any]:
+        """导出任务表格数据为JSON格式"""
+        export_data = {
+            "metadata": {
+                "export_time": datetime.now().isoformat(),
+                "total_tasks": len(self.tasks_info),
+                "current_step": self.current_step,
+                "console_info": self.console_info.copy()
+            },
+            "tasks": []
+        }
+        
+        for i, task_info in enumerate(self.tasks_info):
+            task_data = {
+                "step": i + 1,
+                "description": task_info["description"],
+                "status": task_info["status"],
+                "remaining_iterations": self.step_iterations.get(i),
+                "is_current": i == self.current_step
+            }
+            export_data["tasks"].append(task_data)
+        
+        return export_data
+
 
 # 全局UI显示实例
 _ui_display: Optional[UIDisplay] = None
@@ -488,3 +513,20 @@ def remove_console_info(key: str):
     ui = get_ui_display()
     if ui:
         ui.remove_console_info(key)
+
+
+def export_execution_results_to_json(output_file: str):
+    """将执行结果导出为JSON文件"""
+    ui = get_ui_display()
+    if ui:
+        try:
+            export_data = ui.export_task_table_to_json()
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(export_data, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            print(f"导出JSON文件失败: {e}")
+            return False
+    else:
+        print("无法获取执行结果数据")
+        return False

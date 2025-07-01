@@ -611,3 +611,12 @@ msgstr "Failed to get device info for {}: {}"
 
 msgid "command_number"
 msgstr "Command {}"
+
+msgid "arg_output_help"
+msgstr "Specify output file path for execution results in JSON format"
+
+msgid "json_export_success"
+msgstr "Execution results successfully exported to file: {}"
+
+msgid "json_export_failed"
+msgstr "Failed to export execution results to file: {}"
