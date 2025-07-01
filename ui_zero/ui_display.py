@@ -147,6 +147,8 @@ class UIDisplay:  # pylint: disable=too-many-instance-attributes
     def show_message(self, message: str, level: str = "info"):
         """显示消息"""
         if not self.is_terminal or not self.console:
+            # 在非终端模式下使用简单的print输出
+            print(f"[{level.upper()}] {message}")
             return
 
         if level == "error":

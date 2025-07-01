@@ -5,8 +5,8 @@ tasks:
   - name: <name>
     continueOnError: <boolean> # 可选，错误时是否继续执行下一个任务，默认 false
     flow:
-      # 执行一个交互指令
-      - ai: <prompt>
+      # 执行一个交互指令，可简写为 ai: <prompt>
+      - aiAction: <prompt>
 
       # 等待某个条件满足，并设置超时时间(ms，可选，默认 30000)
       - aiWaitFor: <prompt>
@@ -26,7 +26,7 @@ tasks:
   - name: <name>
     continueOnError: true
     flow:
-      - ai: <prompt>
+      - aiAction: <prompt>
 
   - name: <name>
     flow:

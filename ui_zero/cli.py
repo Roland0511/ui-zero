@@ -767,8 +767,9 @@ def main() -> None:
     log_level = getattr(logging, args.log_level.upper())
     configure_logging(level=log_level)
     
-    # 初始化UI显示系统
-    ui_display = initialize_ui_display(is_terminal=True)
+    # 初始化UI显示系统 - 服务器模式下禁用终端UI
+    is_terminal_mode = not args.serve
+    ui_display = initialize_ui_display(is_terminal=is_terminal_mode)
 
     # 获取配置好的logger
     global logger

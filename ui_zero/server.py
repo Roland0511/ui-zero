@@ -223,8 +223,9 @@ class ConnectionManager:
             for websocket in self.session_connections[session_id]:
                 try:
                     await websocket.send_text(message.model_dump_json())
-                except Exception:
+                except Exception as e:
                     dead_connections.append(websocket)
+                    logger.warning(f"Failed to send message to websocket: {e}")
 
             # Remove dead connections
             for dead_ws in dead_connections:
@@ -411,6 +412,85 @@ async def get_devices():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# 辅助函数：创建异步回调的同步包装器
+def create_sync_callbacks(main_loop, session_id, callbacks, queues):
+    """创建同步回调包装器，用于在线程中调用"""
+    screenshot_callback, preaction_callback, postaction_callback, stream_resp_callback = callbacks
+    screenshot_queue, preaction_queue, postaction_queue, stream_resp_queue = queues
+    
+    def sync_screenshot_callback(img_bytes: bytes):
+        try:
+            asyncio.run_coroutine_threadsafe(
+                screenshot_queue.put(img_bytes), main_loop
+            )
+        except Exception as e:
+            logger.error(f"Screenshot callback error: {e}")
+    
+    def sync_preaction_callback(prompt: str, output):
+        try:
+            asyncio.run_coroutine_threadsafe(
+                preaction_queue.put((prompt, output)), main_loop
+            )
+        except Exception as e:
+            logger.error(f"Preaction callback error: {e}")
+    
+    def sync_postaction_callback(prompt: str, output, left_iters: int):
+        try:
+            asyncio.run_coroutine_threadsafe(
+                postaction_queue.put((prompt, output, left_iters)), main_loop
+            )
+        except Exception as e:
+            logger.error(f"Postaction callback error: {e}")
+    
+    def sync_stream_resp_callback(content: str, is_finish: bool):
+        try:
+            logger.info(f"Streaming response: {content}, finished: {is_finish}")
+            asyncio.run_coroutine_threadsafe(
+                stream_resp_queue.put((content, is_finish)), main_loop
+            )
+        except Exception as e:
+            logger.error(f"Stream response callback error: {e}")
+    
+    return (
+        sync_screenshot_callback,
+        sync_preaction_callback,
+        sync_postaction_callback,
+        sync_stream_resp_callback,
+    )
+
+
+# 辅助函数：创建队列处理器
+async def create_queue_processor(session_id, callbacks, queues):
+    """创建队列处理器，用于在主线程中处理来自工作线程的消息"""
+    screenshot_callback, preaction_callback, postaction_callback, stream_resp_callback = callbacks
+    screenshot_queue, preaction_queue, postaction_queue, stream_resp_queue = queues
+    
+    while session_id in active_sessions and active_sessions[session_id]["status"] in ["running"]:
+        try:
+            if not screenshot_queue.empty():
+                img_bytes = await screenshot_queue.get()
+                await screenshot_callback(img_bytes)
+                
+            if not preaction_queue.empty():
+                prompt, output = await preaction_queue.get()
+                await preaction_callback(prompt, output)
+                
+            if not postaction_queue.empty():
+                prompt, output, left_iters = await postaction_queue.get()
+                await postaction_callback(prompt, output, left_iters)
+                
+            if not stream_resp_queue.empty():
+                content, is_finish = await stream_resp_queue.get()
+                await stream_resp_callback(content, is_finish)
+                
+            await asyncio.sleep(0.01)  # 短暂休眠避免CPU占用过高
+        except Exception as e:
+            logger.error(f"Error processing queue: {e}")
+            await asyncio.sleep(0.1)
+    
+    logger.info(f"Queue processor for session {session_id} stopped")
+
+
 @app.post(
     "/command",
     response_model=ExecutionResponse,
@@ -437,15 +517,45 @@ async def execute_command(request: CommandRequest):
             "request": request.model_dump(),
         }
 
-        # 在后台线程中执行命令
+        # 创建主线程中的回调函数
+        main_loop = asyncio.get_event_loop()
+        callbacks = await create_websocket_callbacks(session_id)
+        
+        # 创建线程安全的队列用于跨线程通信
+        queues = (
+            asyncio.Queue(),  # screenshot_queue
+            asyncio.Queue(),  # preaction_queue
+            asyncio.Queue(),  # postaction_queue
+            asyncio.Queue(),  # stream_resp_queue
+        )
+        
+        # 创建同步回调包装器
+        sync_callbacks = create_sync_callbacks(main_loop, session_id, callbacks, queues)
+        
+        # 启动队列处理任务
+        queue_task = asyncio.create_task(create_queue_processor(session_id, callbacks, queues))
+        
         def run_command():
+            result = None
             try:
                 result = execute_single_step(
                     request.command,
                     device_id=request.device_id,
                     timeout=request.timeout,
+                    screenshot_callback=sync_callbacks[0],
+                    preaction_callback=sync_callbacks[1],
+                    postaction_callback=sync_callbacks[2],
+                    stream_resp_callback=sync_callbacks[3],
                 )
-
+            except Exception as e:
+                logger.error(get_text("command_execution_error", e))
+                active_sessions[session_id].update(
+                    {"status": "failed", "error": str(e), "end_time": datetime.now()}
+                )
+                return
+            
+            # 更新会话状态
+            if result:
                 active_sessions[session_id].update(
                     {
                         "status": "completed",
@@ -461,11 +571,9 @@ async def execute_command(request: CommandRequest):
                         "end_time": datetime.now(),
                     }
                 )
-
-            except Exception as e:
-                logger.error(get_text("command_execution_error", e))
+            else:
                 active_sessions[session_id].update(
-                    {"status": "failed", "error": str(e), "end_time": datetime.now()}
+                    {"status": "failed", "error": "No result returned", "end_time": datetime.now()}
                 )
 
         thread = threading.Thread(target=run_command)
@@ -521,7 +629,24 @@ async def execute_testcase(request: TestCaseRequest):
             "current_step": 0,
         }
 
-        # 在后台线程中执行测试用例
+        # 创建主线程中的回调函数
+        main_loop = asyncio.get_event_loop()
+        callbacks = await create_websocket_callbacks(session_id)
+        
+        # 创建线程安全的队列用于跨线程通信
+        queues = (
+            asyncio.Queue(),  # screenshot_queue
+            asyncio.Queue(),  # preaction_queue
+            asyncio.Queue(),  # postaction_queue
+            asyncio.Queue(),  # stream_resp_queue
+        )
+        
+        # 创建同步回调包装器
+        sync_callbacks = create_sync_callbacks(main_loop, session_id, callbacks, queues)
+        
+        # 启动队列处理任务
+        queue_task = asyncio.create_task(create_queue_processor(session_id, callbacks, queues))
+        
         def run_testcase():
             try:
                 run_testcases(
@@ -529,12 +654,15 @@ async def execute_testcase(request: TestCaseRequest):
                     include_history=request.include_history,
                     debug=request.debug,
                     device_id=request.device_id,
+                    screenshot_callback=sync_callbacks[0],
+                    preaction_callback=sync_callbacks[1],
+                    postaction_callback=sync_callbacks[2],
+                    stream_resp_callback=sync_callbacks[3],
                 )
-
+                
                 active_sessions[session_id].update(
                     {"status": "completed", "end_time": datetime.now()}
                 )
-
             except Exception as e:
                 logger.error(get_text("testcase_execution_error", e))
                 active_sessions[session_id].update(
@@ -589,7 +717,24 @@ async def execute_yaml_testcase(request: YamlTestCaseRequest):
             "current_step": 0,
         }
 
-        # 在后台线程中执行测试用例
+        # 创建主线程中的回调函数
+        main_loop = asyncio.get_event_loop()
+        callbacks = await create_websocket_callbacks(session_id)
+        
+        # 创建线程安全的队列用于跨线程通信
+        queues = (
+            asyncio.Queue(),  # screenshot_queue
+            asyncio.Queue(),  # preaction_queue
+            asyncio.Queue(),  # postaction_queue
+            asyncio.Queue(),  # stream_resp_queue
+        )
+        
+        # 创建同步回调包装器
+        sync_callbacks = create_sync_callbacks(main_loop, session_id, callbacks, queues)
+        
+        # 启动队列处理任务
+        queue_task = asyncio.create_task(create_queue_processor(session_id, callbacks, queues))
+        
         def run_yaml_testcase():
             try:
                 run_testcases(
@@ -597,12 +742,15 @@ async def execute_yaml_testcase(request: YamlTestCaseRequest):
                     include_history=request.include_history,
                     debug=request.debug,
                     device_id=final_device_id,
+                    screenshot_callback=sync_callbacks[0],
+                    preaction_callback=sync_callbacks[1],
+                    postaction_callback=sync_callbacks[2],
+                    stream_resp_callback=sync_callbacks[3],
                 )
-
+                
                 active_sessions[session_id].update(
                     {"status": "completed", "end_time": datetime.now()}
                 )
-
             except Exception as e:
                 logger.error(get_text("yaml_testcase_execution_error", e))
                 active_sessions[session_id].update(
