@@ -196,6 +196,9 @@ def convert_yaml_to_testcases(
                 # 添加timeout参数支持
                 if "timeout" in action:
                     testcase["timeout"] = action["timeout"]
+                # 添加maxRetry参数支持
+                if "maxRetry" in action:
+                    testcase["maxRetry"] = action["maxRetry"]
                 testcases.append(testcase)
             elif "aiAction" in action:
                 testcase = {
@@ -207,6 +210,9 @@ def convert_yaml_to_testcases(
                 # 添加timeout参数支持
                 if "timeout" in action:
                     testcase["timeout"] = action["timeout"]
+                # 添加maxRetry参数支持
+                if "maxRetry" in action:
+                    testcase["maxRetry"] = action["maxRetry"]
                 testcases.append(testcase)
             elif "aiWaitFor" in action:
                 # 将等待条件作为AI动作处理，支持timeout参数
@@ -220,6 +226,9 @@ def convert_yaml_to_testcases(
                 # 添加timeout参数支持
                 if "timeout" in action:
                     testcase["timeout"] = action["timeout"]
+                # 添加maxRetry参数支持
+                if "maxRetry" in action:
+                    testcase["maxRetry"] = action["maxRetry"]
                 testcases.append(testcase)
             elif "aiAssert" in action:
                 # 将断言作为AI动作处理，支持errorMessage参数
@@ -410,10 +419,12 @@ def execute_unified_action(
         # 处理AI动作
         prompt = action_dict.get("prompt", "")
         timeout = action_dict.get("timeout")  # 获取timeout参数
+        max_retry = action_dict.get("maxRetry")  # 获取maxRetry参数
 
         # 统一使用agent.run，不再区分CLI和GUI模式
         return agent.run(
             prompt,
+            max_iters=max_retry if max_retry is not None else 10,  # 使用maxRetry作为max_iters，默认值10
             screenshot_callback=screenshot_callback,
             preaction_callback=preaction_callback,
             postaction_callback=postaction_callback,

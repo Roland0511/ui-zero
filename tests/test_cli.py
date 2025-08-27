@@ -305,6 +305,66 @@ class TestYamlToTestcases(unittest.TestCase):
         self.assertEqual(len(testcases), 1)
         self.assertEqual(testcases[0]['taskName'], "未命名任务")
 
+    def test_convert_yaml_to_testcases_with_max_retry(self):
+        """测试YAML配置中maxRetry参数的转换"""
+        config = {
+            "android": {"deviceId": "test_device"},
+            "tasks": [
+                {
+                    "name": "test_max_retry_task",
+                    "continueOnError": False,
+                    "flow": [
+                        {"ai": "action with max retry", "maxRetry": 20},
+                        {"aiAction": "another action with max retry", "maxRetry": 15},
+                        {"aiWaitFor": "wait condition", "maxRetry": 25, "timeout": 5000},
+                        {"ai": "action without max retry"},
+                        {"sleep": 1000}  # sleep动作不支持maxRetry
+                    ]
+                }
+            ]
+        }
+        with patch('ui_zero.cli.get_text') as mock_get_text:
+            def mock_get_text_func(key, *args):
+                if key == "ai_wait_for_condition":
+                    return f"等待条件满足: {args[0]}"
+                elif key == "unnamed_task":
+                    return "未命名任务"
+                else:
+                    return f"mocked_{key}"
+            
+            mock_get_text.side_effect = mock_get_text_func
+            testcases, device_id = convert_yaml_to_testcases(config)
+        
+        self.assertEqual(device_id, "test_device")
+        self.assertEqual(len(testcases), 5)
+        
+        # 检查第一个动作：ai动作带maxRetry
+        self.assertEqual(testcases[0]['type'], 'ai_action')
+        self.assertEqual(testcases[0]['prompt'], 'action with max retry')
+        self.assertEqual(testcases[0]['maxRetry'], 20)
+        self.assertEqual(testcases[0]['taskName'], 'test_max_retry_task')
+        
+        # 检查第二个动作：aiAction动作带maxRetry
+        self.assertEqual(testcases[1]['type'], 'ai_action')
+        self.assertEqual(testcases[1]['prompt'], 'another action with max retry')
+        self.assertEqual(testcases[1]['maxRetry'], 15)
+        
+        # 检查第三个动作：aiWaitFor动作带maxRetry和timeout
+        self.assertEqual(testcases[2]['type'], 'ai_action')
+        self.assertEqual(testcases[2]['prompt'], '等待条件满足: wait condition')
+        self.assertEqual(testcases[2]['maxRetry'], 25)
+        self.assertEqual(testcases[2]['timeout'], 5000)
+        
+        # 检查第四个动作：没有maxRetry的ai动作
+        self.assertEqual(testcases[3]['type'], 'ai_action')
+        self.assertEqual(testcases[3]['prompt'], 'action without max retry')
+        self.assertNotIn('maxRetry', testcases[3])  # 不应该包含maxRetry字段
+        
+        # 检查第五个动作：sleep动作（不支持maxRetry）
+        self.assertEqual(testcases[4]['type'], 'wait')
+        self.assertEqual(testcases[4]['duration'], 1000)
+        self.assertNotIn('maxRetry', testcases[4])  # wait动作不应该包含maxRetry
+
 
 class TestActionExecution(unittest.TestCase):
     """动作执行功能测试"""
@@ -476,6 +536,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
         # 验证agent.run被正确调用
         self.mock_agent.run.assert_called_once_with(
             "test prompt",
+            max_iters=10,  # 默认值为10
             screenshot_callback=None,
             preaction_callback=None,
             postaction_callback=None,
@@ -510,6 +571,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
         # 验证agent.run被正确调用，包含timeout参数
         self.mock_agent.run.assert_called_once_with(
             "test prompt",
+            max_iters=10,  # 默认值为10
             screenshot_callback=None,
             preaction_callback=None,
             postaction_callback=None,
@@ -517,6 +579,102 @@ class TestUnifiedActionExecution(unittest.TestCase):
             include_history=True,
             debug=False,
             timeout=5000
+        )
+        
+        self.assertEqual(result, mock_result)
+
+    def test_execute_unified_action_ai_with_max_retry(self):
+        """测试AI动作支持maxRetry参数"""
+        action_dict = {
+            "type": "ai_action",
+            "prompt": "test prompt",
+            "maxRetry": 20,  # 设置最大重试20次
+            "taskName": "test_ai",
+            "continueOnError": False
+        }
+        mock_result = Mock(spec=ActionOutput)
+        self.mock_agent.run.return_value = mock_result
+        result = execute_unified_action(
+            action_dict,
+            self.mock_agent,
+            include_history=True,
+            debug=False,
+        )
+        # 验证agent.run被正确调用，maxRetry被传递为max_iters参数
+        self.mock_agent.run.assert_called_once_with(
+            "test prompt",
+            max_iters=20,  # 验证maxRetry被正确传递为max_iters
+            screenshot_callback=None,
+            preaction_callback=None,
+            postaction_callback=None,
+            stream_resp_callback=None,
+            include_history=True,
+            debug=False,
+            timeout=None
+        )
+        
+        self.assertEqual(result, mock_result)
+
+    def test_execute_unified_action_ai_with_max_retry_and_timeout(self):
+        """测试AI动作同时支持maxRetry和timeout参数"""
+        action_dict = {
+            "type": "ai_action",
+            "prompt": "test prompt",
+            "maxRetry": 15,
+            "timeout": 3000,
+            "taskName": "test_ai",
+            "continueOnError": False
+        }
+        mock_result = Mock(spec=ActionOutput)
+        self.mock_agent.run.return_value = mock_result
+        result = execute_unified_action(
+            action_dict,
+            self.mock_agent,
+            include_history=True,
+            debug=False,
+        )
+        # 验证agent.run被正确调用，同时包含maxRetry和timeout参数
+        self.mock_agent.run.assert_called_once_with(
+            "test prompt",
+            max_iters=15,
+            screenshot_callback=None,
+            preaction_callback=None,
+            postaction_callback=None,
+            stream_resp_callback=None,
+            include_history=True,
+            debug=False,
+            timeout=3000
+        )
+        
+        self.assertEqual(result, mock_result)
+
+    def test_execute_unified_action_ai_default_max_iters(self):
+        """测试AI动作不指定maxRetry时使用默认值10"""
+        action_dict = {
+            "type": "ai_action",
+            "prompt": "test prompt",
+            "taskName": "test_ai",
+            "continueOnError": False
+        }
+        mock_result = Mock(spec=ActionOutput)
+        self.mock_agent.run.return_value = mock_result
+        result = execute_unified_action(
+            action_dict,
+            self.mock_agent,
+            include_history=True,
+            debug=False,
+        )
+        # 验证agent.run被正确调用，使用默认的max_iters=10
+        self.mock_agent.run.assert_called_once_with(
+            "test prompt",
+            max_iters=10,  # 验证默认值为10
+            screenshot_callback=None,
+            preaction_callback=None,
+            postaction_callback=None,
+            stream_resp_callback=None,
+            include_history=True,
+            debug=False,
+            timeout=None
         )
         
         self.assertEqual(result, mock_result)
@@ -550,6 +708,7 @@ class TestUnifiedActionExecution(unittest.TestCase):
         # 验证agent.run被正确调用
         self.mock_agent.run.assert_called_once_with(
             "test prompt",
+            max_iters=10,  # 默认值为10
             screenshot_callback=mock_screenshot_callback,
             preaction_callback=mock_preaction_callback,
             postaction_callback=mock_postaction_callback,
