@@ -785,14 +785,14 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--legacy", action="store_true", help="Use legacy model (doubao-1-5-ui-tars-250428)"
+        "--legacy", action="store_true", help=get_text("arg_legacy_help")
     )
 
     parser.add_argument(
         "--reasoning-effort",
         choices=["low", "medium", "high"],
         default="medium",
-        help="Reasoning effort for the model (only for new model)",
+        help=get_text("arg_reasoning_effort_help"),
     )
 
     args = parser.parse_args()

@@ -39,6 +39,8 @@ UI-Zero is an AI-powered UI automation testing library for mobile devices. It us
 - `uiz --serve --host 127.0.0.1 --port 9000` - Start server on custom host/port
 - `uiz --serve --log-level debug` - Start server with a specific log level
 - `uiz --testcase tests/demo.yaml --output run.json` - Execute a suite and export results
+- `uiz --legacy` - Use legacy model (doubao-1-5-ui-tars-250428)
+- `uiz --reasoning-effort low|medium|high` - Set model reasoning effort (only for new model)
 
 ## Architecture
 
@@ -73,7 +75,7 @@ UI-Zero is an AI-powered UI automation testing library for mobile devices. It us
 - Hardware key simulation
 
 #### AI Models (`ui_zero/models/`)
-- `DoubaoUITarsModel` - ByteDance UI-TARS integration
+- `DoubaoUITarsModel` - ByteDance UI-TARS integration. Supports multiple model versions (`doubao-seed-1-8-251228` as default, `doubao-1-5-ui-tars-250428` as legacy) and configurable `reasoning_effort` for the seed model.
 - `ArkModel` - Base class for AI models
 - Handles image processing and coordinate conversion
 - Parses model output into structured actions

@@ -251,7 +251,7 @@ msgstr "❌ Environment configuration validation failed:"
 msgid "env_missing_vars_list"
 msgstr "   Missing environment variables ({} total):"
 
-msgid "env_invalid_vars_list"  
+msgid "env_invalid_vars_list"
 msgstr "   Invalid environment variables ({} total):"
 
 msgid "env_reconfigure_hint"
@@ -623,3 +623,9 @@ msgstr "Execution results successfully exported to file: {}"
 
 msgid "json_export_failed"
 msgstr "Failed to export execution results to file: {}"
+
+msgid "arg_legacy_help"
+msgstr "Use legacy model (doubao-1-5-ui-tars-250428)"
+
+msgid "arg_reasoning_effort_help"
+msgstr "Reasoning effort for the model (only for new model)"
