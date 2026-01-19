@@ -43,7 +43,9 @@ SYSTEM_PROMPT = """
     ## User Instruction
     {instruction}
 """
-MODEL_NAME = "doubao-1-5-ui-tars-250428"
+NEW_MODEL = "doubao-seed-1-8-251228"
+LEGACY_MODEL = "doubao-1-5-ui-tars-250428"
+MODEL_NAME = NEW_MODEL
 
 
 class ActionOutput:
@@ -443,8 +445,16 @@ def calculate_drag_endpoint(start_point, direction, length):
 
 
 class DoubaoUITarsModel(ArkModel):
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
-        super().__init__(MODEL_NAME, SYSTEM_PROMPT, api_key, base_url)
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        model_name: Optional[str] = None,
+        reasoning_effort: str = "medium",
+    ):
+        name = model_name or MODEL_NAME
+        super().__init__(name, SYSTEM_PROMPT, api_key, base_url)
+        self.reasoning_effort = reasoning_effort
 
     def run(
         self,
@@ -481,9 +491,16 @@ class DoubaoUITarsModel(ArkModel):
             messages.append({"role": "user", "content": user_content})
 
             # 发送请求
-            stream = client.chat.completions.create(
-                model=self.model_name, temperature=0, messages=messages, stream=True
-            )
+            kwargs = {
+                "model": self.model_name,
+                "temperature": 0,
+                "messages": messages,
+                "stream": True,
+            }
+            if self.model_name == NEW_MODEL:
+                kwargs["reasoning_effort"] = self.reasoning_effort
+
+            stream = client.chat.completions.create(**kwargs)
             # OpenAI stream processing
 
             full_response: str = ""

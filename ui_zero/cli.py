@@ -32,6 +32,7 @@ from .env_config import ensure_env_config, setup_env_interactive, validate_env
 from .localization import get_text
 from .logging_config import configure_logging, get_logger
 from .ui_display import initialize_ui_display, get_ui_display, show_ai_response
+from .models.doubao_ui_tars import DoubaoUITarsModel, NEW_MODEL, LEGACY_MODEL
 
 # 加载环境变量
 dotenv.load_dotenv()
@@ -449,6 +450,7 @@ def run_testcases(
     include_history: bool = True,
     debug: bool = False,
     device_id: Optional[str] = None,
+    model: Optional[Any] = None,
 ) -> None:
     """
     统一的测试用例执行函数
@@ -462,9 +464,10 @@ def run_testcases(
         include_history: 是否包含历史记录
         debug: 是否启用调试模式
         device_id: 指定的设备ID
+        model: 指定的模型实例
     """
     adb_tool = ADBTool(device_id=device_id) if device_id else ADBTool()
-    agent = AndroidAgent(adb=adb_tool)
+    agent = AndroidAgent(adb=adb_tool, model=model)
     _ = StepRunner(agent)  # Create runner for any initialization side effects
 
     # 获取UI显示系统
@@ -495,6 +498,9 @@ def run_testcases(
     # 初始化进度显示
     if ui_display:
         ui_display.initialize_progress(len(testcase_prompts), task_descriptions)
+        # 添加模型信息
+        if agent and agent.model:
+            ui_display.add_console_info("model_name", agent.model.model_name)
         ui_display.start_display()
     
     # 输出初始化信息到日志
@@ -694,6 +700,7 @@ def run_testcases_for_gui(
     include_history: bool = True,
     debug: bool = False,
     device_id: Optional[str] = None,
+    model: Optional[Any] = None,
 ) -> None:
     """
     为GUI模式提供的批量执行函数，使用统一的执行逻辑
@@ -708,6 +715,7 @@ def run_testcases_for_gui(
         include_history=include_history,
         debug=debug,
         device_id=device_id,
+        model=model,
     )
 
 
@@ -774,6 +782,17 @@ def main() -> None:
 
     parser.add_argument(
         "--output", "-o", type=str, help=get_text("arg_output_help")
+    )
+
+    parser.add_argument(
+        "--legacy", action="store_true", help="Use legacy model (doubao-1-5-ui-tars-250428)"
+    )
+
+    parser.add_argument(
+        "--reasoning-effort",
+        choices=["low", "medium", "high"],
+        default="medium",
+        help="Reasoning effort for the model (only for new model)",
     )
 
     args = parser.parse_args()
@@ -908,13 +927,19 @@ def main() -> None:
 
     # 设备ID优先级：命令行参数 > YAML配置 > 自动选择
     final_device_id = args.device or device_id_from_config
-    
+
+    # 初始化模型
+    model_name = LEGACY_MODEL if args.legacy else NEW_MODEL
+    reasoning_effort = args.reasoning_effort
+    model = DoubaoUITarsModel(model_name=model_name, reasoning_effort=reasoning_effort)
+
     try:
         run_testcases(
             testcase_prompts,
             include_history=include_history,
             debug=args.debug,
             device_id=final_device_id,
+            model=model,
         )
         
         # 执行完成后，如果指定了输出文件，导出结果

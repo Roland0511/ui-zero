@@ -548,6 +548,9 @@ msgstr "控制台信息"
 msgid "log_file_path"
 msgstr "日志文件路径"
 
+msgid "model_name"
+msgstr "当前模型"
+
 msgid "no_stderr_output"
 msgstr "暂无错误输出"
 

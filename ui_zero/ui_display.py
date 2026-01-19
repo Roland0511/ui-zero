@@ -326,6 +326,8 @@ class UIDisplay:  # pylint: disable=too-many-instance-attributes
                     console_content.append(f"[dim]Started: {value}[/dim]")
                 elif key == "total_tasks":
                     console_content.append(f"[dim]Total tasks: {value}[/dim]")
+                elif key == "model_name":
+                    console_content.append(f"[bold cyan]{get_text('model_name')}:[/bold cyan] {value}")
                 else:
                     console_content.append(f"[dim]{key}: {value}[/dim]")
         

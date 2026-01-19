@@ -548,6 +548,9 @@ msgstr "Console Info"
 msgid "log_file_path"
 msgstr "Log file path"
 
+msgid "model_name"
+msgstr "Model Name"
+
 msgid "no_stderr_output"
 msgstr "No error output"
 
